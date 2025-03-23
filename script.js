@@ -45,7 +45,7 @@ function populateUserDropdown() {
     });
 }
 
-// Update user info when selecting a user
+// Handle user change
 function onUserChange() {
     const usernameSelect = document.getElementById("username");
     currentAnnotator = usernameSelect.value;
@@ -167,7 +167,7 @@ function resetAnnotations() {
 function adminLogin() {
     const username = document.getElementById("admin-username").value;
     const password = document.getElementById("admin-password").value;
-    if (username === "ira" && password === "1234") {
+    if (username === "Ira" && password === "qwerty12345") {
         alert("Admin login successful!");
         displayAdminDashboard();
     } else {
@@ -203,6 +203,12 @@ function viewAnnotations(annotator) {
     const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`));
     alert(`Annotations for ${annotator}: ${JSON.stringify(data)}`);
 }
+
+// Event listeners
+document.getElementById("username").addEventListener("change", onUserChange);
+document.getElementById("next-button").addEventListener("click", nextRow);
+document.getElementById("reset-button").addEventListener("click", resetAnnotations);
+document.getElementById("admin-login").addEventListener("click", adminLogin);
 
 // Initialize on page load
 window.onload = init;
