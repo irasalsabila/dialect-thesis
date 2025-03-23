@@ -97,7 +97,6 @@ function displayDialogue() {
         translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
-        translateInput.required = true; // Make input required
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
@@ -117,18 +116,6 @@ function saveTranslation(index, value) {
     }
     annotations[currentRow][index] = value;
     saveAnnotations();
-}
-
-// Validate all translations are filled
-function validateTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    for (let input of inputs) {
-        if (input.value.trim() === "") {
-            alert("Please fill all translation fields before saving or moving to the next row.");
-            return false;
-        }
-    }
-    return true;
 }
 
 // Save annotations to localStorage
@@ -156,15 +143,12 @@ function updateProgress() {
 
 // Move to next row
 function nextRow() {
-    collectAllTranslations();  // Collect all inputs before moving to the next row
-    if (validateTranslations()) {
-        currentRow++;
-        if (currentRow >= totalRows) {
-            currentRow = totalRows;
-            alert("All annotations completed!");
-        }
-        displayDialogue();
+    currentRow++;
+    if (currentRow >= totalRows) {
+        currentRow = totalRows;
+        alert("All annotations completed!");
     }
+    displayDialogue();
 }
 
 // Reset all annotations
@@ -295,20 +279,9 @@ function closeAnnotationDetails() {
 
 // Save current progress without moving to the next row
 function saveCurrentProgress() {
-    collectAllTranslations();  // Collect all inputs before saving
-    if (validateTranslations()) {
-        saveAnnotations();
-        alert("Progress saved!");
-    }
-}
-
-// Collect all translation inputs before saving
-function collectAllTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    inputs.forEach((input, index) => {
-        const value = input.value.trim();
-        saveTranslation(index, value);
-    });
+    // Save current row's annotations
+    saveAnnotations();
+    alert("Progress saved!");
 }
 
 // Event listeners
