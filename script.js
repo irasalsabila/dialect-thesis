@@ -110,6 +110,7 @@ function displayDialogue() {
     updateProgress();
 }
 
+
 // Save translation for the current row
 function saveTranslation(index, value) {
     if (!annotations[currentRow]) {
@@ -128,7 +129,13 @@ function saveAnnotations() {
 function loadAnnotations() {
     const storedData = localStorage.getItem(`annotations_${currentAnnotator}`);
     annotations = storedData ? JSON.parse(storedData) : {};
-    currentRow = Object.keys(annotations).length;
+    // Prevent skipping incomplete rows on reload
+    for (let i = 0; i < totalRows; i++) {
+        if (!annotations[i] || annotations[i].some(val => !val)) {
+            currentRow = i;
+            break;
+        }
+    }
     updateProgress();
     displayDialogue();
 }
@@ -212,7 +219,7 @@ function viewAnnotations(annotator) {
     const dialect = user ? user[1] : "Unknown";
 
     // Generate headers dynamically
-    const headers = ["annotator", "dialect", ...parsedData.headers];
+    const headers = ["index", "annotator", "dialect", ...parsedData.headers];
     let csvContent = headers.join(",") + "\n";
 
     // Create header row
@@ -229,9 +236,11 @@ function viewAnnotations(annotator) {
         const row = data[rowIndex];
         const tr = document.createElement("tr");
 
-        // Ensure annotation and dialect columns are filled
-        const rowData = [annotator, dialect];
-        
+        // Add index cell
+        const indexCell = document.createElement("td");
+        indexCell.textContent = rowIndex;
+        tr.appendChild(indexCell);
+
         // Add annotation and dialect cells
         const annotationCell = document.createElement("td");
         annotationCell.textContent = annotator;
@@ -246,11 +255,11 @@ function viewAnnotations(annotator) {
             const td = document.createElement("td");
             td.textContent = value || "-";
             tr.appendChild(td);
-            rowData.push(value || "-");
+            csvContent += value ? `${value},` : "-,";
         });
 
         annotationBody.appendChild(tr);
-        csvContent += rowData.join(",") + "\n";
+        csvContent += "\n";
     });
 
     // Add download button for CSV
@@ -286,7 +295,7 @@ function saveCurrentProgress() {
     alert("Progress saved!");
 }
 
-// Validate all translation inputs are filled
+// Validate all translations are filled
 function validateTranslations() {
     const inputs = document.querySelectorAll("#translation-content input");
     for (let input of inputs) {
@@ -298,10 +307,16 @@ function validateTranslations() {
     return true;
 }
 
+// Close the admin dashboard
+function closeAdminDashboard() {
+    const dashboard = document.getElementById("admin-dashboard");
+    dashboard.style.display = "none";
+}
+
 // Event listeners
 document.getElementById("username").addEventListener("change", onUserChange);
 document.getElementById("next").addEventListener("click", nextRow);
-document.getElementById("save").addEventListener("click", saveCurrentProgress);
+// document.getElementById("save").addEventListener("click", saveCurrentProgress);
 document.getElementById("reset").addEventListener("click", resetAnnotations);
 document.getElementById("admin-login").addEventListener("click", adminLogin);
 

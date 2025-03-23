@@ -123,6 +123,12 @@ button {
 #admin-login,
 .view-btn {
     background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin: 2px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 #admin-login:hover,
@@ -175,6 +181,14 @@ th {
 
 tr:hover {
     background-color: #f1f1f1;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:nth-child(odd) {
+    background-color: #fff;
 }
 
 /* Admin Dashboard Table */
@@ -265,4 +279,18 @@ tr:hover {
         width: 100%;
         margin: 5px 0;
     }
+}
+
+.close-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin: 10px 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background-color: #c82333;
 }
