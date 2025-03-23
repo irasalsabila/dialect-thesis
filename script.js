@@ -85,25 +85,16 @@ function displayDialogue() {
     const row = parsedData.rows[currentRow];
     parsedData.headers.forEach((header, index) => {
         const dialogue = row[index];
-
-        // Original Dialogue Display
-        const dialogueElement = document.createElement("p");
-        dialogueElement.innerHTML = `<strong>${header}:</strong> ${dialogue}`;
-        dialogueBox.appendChild(dialogueElement);
-
-        // Translation Box with Speaker Name
-        const translateLabel = document.createElement("label");
-        translateLabel.textContent = `${header}:`;
-        translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
-        translateInput.required = true; // Make input required
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
-        // Add the label and input to the translation box
-        translateBox.appendChild(translateLabel);
+        const dialogueLine = `<p><strong>${header}:</strong> ${dialogue}</p>`;
+        dialogueBox.innerHTML += dialogueLine;
+        const translationLine = `<p><strong>${header}:</strong></p>`;
+        translateBox.innerHTML += translationLine;
         translateBox.appendChild(translateInput);
     });
 
@@ -117,18 +108,6 @@ function saveTranslation(index, value) {
     }
     annotations[currentRow][index] = value;
     saveAnnotations();
-}
-
-// Validate all translations are filled
-function validateTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    for (let input of inputs) {
-        if (input.value.trim() === "") {
-            alert("Please fill all translation fields before saving or moving to the next row.");
-            return false;
-        }
-    }
-    return true;
 }
 
 // Save annotations to localStorage
@@ -145,17 +124,38 @@ function loadAnnotations() {
     displayDialogue();
 }
 
-// Update progress bar
-function updateProgress() {
-    const progressBar = document.getElementById("progress-bar-fill");
-    const progressText = document.getElementById("progress");
-    const progress = Math.min(currentRow / totalRows * 100, 100);
-    progressBar.style.width = progress + "%";
-    progressText.textContent = `${currentRow}/${totalRows}`;
+// Collect all translations before saving
+function collectAllTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    inputs.forEach((input, index) => {
+        saveTranslation(index, input.value);
+    });
+}
+
+// Save current progress without moving to the next row
+function saveCurrentProgress() {
+    collectAllTranslations();
+    if (validateTranslations()) {
+        saveAnnotations();
+        alert("Progress saved!");
+    }
+}
+
+// Validate all translations are filled
+function validateTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    for (let input of inputs) {
+        if (input.value.trim() === "") {
+            alert("Please fill all translation fields before saving or moving to the next row.");
+            return false;
+        }
+    }
+    return true;
 }
 
 // Move to next row
 function nextRow() {
+    collectAllTranslations();
     if (validateTranslations()) {
         currentRow++;
         if (currentRow >= totalRows) {
@@ -206,104 +206,34 @@ function displayAdminDashboard() {
             <td>${annotator}</td>
             <td>${dialect}</td>
             <td>${progress}</td>
-            <td><button class="view-btn" onclick="viewAnnotations('${annotator}')">View</button></td>
+            <td><button class="btn view-btn" onclick="viewAnnotations('${annotator}')">View</button></td>
         </tr>`;
         tableBody.innerHTML += row;
     });
 }
 
-// View annotations in a structured table format and enable download
+// View annotations
 function viewAnnotations(annotator) {
     const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
-    const annotationTable = document.getElementById("annotation-table");
-    const annotationHeader = document.getElementById("annotation-header");
-    const annotationBody = document.getElementById("annotation-body");
-    annotationHeader.innerHTML = "";
-    annotationBody.innerHTML = "";
+    const detailsTable = document.getElementById("annotation-body");
+    detailsTable.innerHTML = "";
 
-    const user = usersData.find(u => u[0] === annotator);
-    const dialect = user ? user[1] : "Unknown";
-
-    // Generate headers dynamically
-    const headers = ["annotator", "dialect", ...parsedData.headers];
-    let csvContent = headers.join(",") + "\n";
-
-    // Create header row
-    const headerRow = document.createElement("tr");
-    headers.forEach(header => {
-        const th = document.createElement("th");
-        th.textContent = header;
-        headerRow.appendChild(th);
+    Object.keys(data).forEach(row => {
+        const rowData = data[row];
+        const rowHTML = `<tr><td>${annotator}</td><td>${currentDialect}</td>${rowData.map(value => `<td>${value || '-'}</td>`).join('')}</tr>`;
+        detailsTable.innerHTML += rowHTML;
     });
-    annotationHeader.appendChild(headerRow);
-
-    // Create table rows and CSV content
-    Object.keys(data).forEach((rowIndex) => {
-        const row = data[rowIndex];
-        const tr = document.createElement("tr");
-
-        // Ensure annotation and dialect columns are filled
-        const rowData = [annotator, dialect];
-        
-        // Add annotation and dialect cells
-        const annotationCell = document.createElement("td");
-        annotationCell.textContent = annotator;
-        tr.appendChild(annotationCell);
-
-        const dialectCell = document.createElement("td");
-        dialectCell.textContent = dialect;
-        tr.appendChild(dialectCell);
-
-        // Add data from CSV columns
-        row.forEach((value) => {
-            const td = document.createElement("td");
-            td.textContent = value || "-";
-            tr.appendChild(td);
-            rowData.push(value || "-");
-        });
-
-        annotationBody.appendChild(tr);
-        csvContent += rowData.join(",") + "\n";
-    });
-
-    // Add download button for CSV
-    const downloadBtn = document.getElementById("download-annotations");
-    downloadBtn.style.display = "inline-block";
-    downloadBtn.onclick = () => downloadCSV(csvContent, `${annotator}_annotations.csv`);
-
-    // Show annotation details
-    const annotationDetails = document.getElementById("annotation-details");
-    annotationDetails.style.display = "block";
 }
 
-
-// Download CSV function
-function downloadCSV(content, filename) {
-    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-}
-
-// Close the annotation details view
+// Close annotation details
 function closeAnnotationDetails() {
-    const annotationDetails = document.getElementById("annotation-details");
-    annotationDetails.style.display = "none";
-}
-
-// Save current progress without moving to the next row
-function saveCurrentProgress() {
-    if (validateTranslations()) {
-        saveAnnotations();
-        alert("Progress saved!");
-    }
+    document.getElementById("annotation-details").style.display = "none";
 }
 
 // Event listeners
 document.getElementById("username").addEventListener("change", onUserChange);
-document.getElementById("next").addEventListener("click", nextRow);
 document.getElementById("save").addEventListener("click", saveCurrentProgress);
+document.getElementById("next").addEventListener("click", nextRow);
 document.getElementById("reset").addEventListener("click", resetAnnotations);
 document.getElementById("admin-login").addEventListener("click", adminLogin);
 
