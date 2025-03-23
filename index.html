@@ -12,62 +12,59 @@
         <!-- Original Dialogue Box -->
         <div class="box" id="original-dialogue">
             <h2>Original Dialogue</h2>
-            <div id="dialogue-container">
-                <!-- Dynamically loaded dialogues will appear here -->
+            <div id="dialogue-content" class="dialogue-box">
+                <!-- Dialogue content will be dynamically inserted here -->
             </div>
         </div>
 
-        <!-- Translate to Your Own Dialect Box -->
+        <!-- Translation Box -->
         <div class="box" id="translation-box">
             <h2>Translate to Your Own Dialect</h2>
-            <div id="translation-container">
-                <!-- Dynamically loaded translation input fields will appear here -->
+            <div id="translation-content" class="dialogue-box">
+                <!-- Translation inputs will be dynamically inserted here -->
             </div>
         </div>
 
-        <!-- User Info and Control Box -->
-        <div class="box" id="info-box">
+        <!-- Control Box -->
+        <div class="box" id="control-box">
+            <h2>User Information and Control</h2>
+            <!-- User Information -->
             <div class="info-section">
                 <label for="username">Username:</label>
-                <select id="username">
+                <select id="username" class="dropdown">
                     <option value="">Select User</option>
                 </select>
-            </div>
-            <div class="info-section">
-                <label>Dialect:</label>
-                <span id="dialect"></span>
-            </div>
-            <div class="info-section">
-                <label>Region:</label>
-                <span id="region"></span>
-            </div>
-            <div class="info-section">
-                <label>Progress:</label>
-                <span id="progress-text">0/0</span>
-                <div id="progress-bar">
-                    <div id="progress-bar-fill"></div>
+                <div id="user-info">
+                    <p>Dialect: <span id="dialect"></span></p>
+                    <p>Region: <span id="region"></span></p>
+                    <p>Progress: <span id="progress">0/0</span></p>
+                    <div class="progress-bar">
+                        <div id="progress-bar-fill"></div>
+                    </div>
                 </div>
             </div>
-            <div class="info-section">
-                <button id="save-button">Save</button>
-                <button id="next-button">Next</button>
-                <button id="reset-button">Reset</button>
-                <button id="admin-login">Admin Login</button>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button id="save" class="btn">Save</button>
+                <button id="next" class="btn">Next</button>
+                <button id="reset" class="btn">Reset</button>
+                <button id="admin-login" class="btn">Admin Login</button>
             </div>
         </div>
 
         <!-- Admin Access -->
-        <div class="admin-access" id="admin-access" style="display: none;">
+        <div class="box" id="admin-access" style="display: none;">
             <h2>Admin Access</h2>
             <label for="admin-username">Username:</label>
             <input type="text" id="admin-username" placeholder="Username">
             <label for="admin-password">Password:</label>
             <input type="password" id="admin-password" placeholder="Password">
-            <button id="login-button">Login</button>
+            <button id="login" class="btn">Login</button>
         </div>
 
         <!-- Admin Dashboard -->
-        <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+        <div class="box" id="admin-dashboard" style="display: none;">
             <h2>Admin Dashboard</h2>
             <table id="dashboard-table">
                 <thead>
@@ -79,18 +76,20 @@
                     </tr>
                 </thead>
                 <tbody id="dashboard-body">
-                    <!-- Dashboard rows will be added dynamically here -->
+                    <!-- Dashboard rows will be dynamically added here -->
                 </tbody>
             </table>
-            <button id="download-all">Download All Annotations</button>
+            <button id="download-annotations" class="btn">Download All Annotations</button>
         </div>
 
         <!-- Annotation Details -->
-        <div class="annotation-details" id="annotation-details" style="display: none;">
-            <h3>Annotation Details</h3>
+        <div class="box" id="annotation-details" style="display: none;">
+            <h2>Annotation Details</h2>
             <table id="annotation-table">
                 <thead>
-                    <tr id="annotation-header"></tr>
+                    <tr id="annotation-header">
+                        <!-- Dynamic column headers will be inserted here -->
+                    </tr>
                 </thead>
                 <tbody id="annotation-body">
                     <!-- Annotation rows will be dynamically added here -->
@@ -100,6 +99,7 @@
 
     </div>
 
+    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 </html>

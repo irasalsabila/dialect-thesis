@@ -1,38 +1,43 @@
+// Global Variables
+let currentRow = 0;
 let totalRows = 0;
-let currentIndex = 0;
-let annotations = [];
-let annotatorProgress = {};
-let users = [];
-let originalData = [];
-let localStorageKey = "annotationData";
+let currentAnnotator = null;
+let annotations = {};
+let parsedData = [];
+let usersData = [];
+let currentDialect = "";
+let currentRegion = "";
 
-// Load CSV data
-async function loadCSV(filename) {
-    const response = await fetch(filename);
-    const text = await response.text();
-    return text;
+// Load CSV data (async)
+async function loadCSV(file) {
+    const response = await fetch(file);
+    return await response.text();
 }
 
-// Parse CSV
-function parseCSV(text) {
-    const lines = text.split("\n");
-    const headers = lines[0].split(",");
-    const rows = lines.slice(1).map(line => line.split(","));
-    return { headers, rows };
+// Parse CSV data
+function parseCSV(data) {
+    const rows = data.split('\n');
+    const headers = rows[0].split(',');
+    const parsedRows = rows.slice(1).map(row => row.split(','));
+    return { headers, rows: parsedRows };
 }
 
-// Load users from CSV
-async function loadUsers() {
-    const csvData = await loadCSV("users.csv");
-    const parsedData = parseCSV(csvData);
-    users = parsedData.rows;
-    populateUserDropdown(users);
+// Initialize the interface
+async function init() {
+    const csvData = await loadCSV('data.csv');
+    const userCsvData = await loadCSV('users.csv');
+    parsedData = parseCSV(csvData);
+    usersData = parseCSV(userCsvData).rows;
+    totalRows = parsedData.rows.length;
+    populateUserDropdown();
+    updateProgress();
 }
 
-// Populate user dropdown
-function populateUserDropdown(users) {
+// Populate user dropdown from users.csv
+function populateUserDropdown() {
     const usernameSelect = document.getElementById("username");
-    users.forEach(user => {
+    usernameSelect.innerHTML = '<option value="">Select User</option>';
+    usersData.forEach(user => {
         const option = document.createElement("option");
         option.value = user[0];
         option.textContent = user[0];
@@ -40,150 +45,164 @@ function populateUserDropdown(users) {
     });
 }
 
-// Load annotation data from localStorage
-function loadLocalAnnotations() {
-    const savedData = localStorage.getItem(localStorageKey);
-    return savedData ? JSON.parse(savedData) : {};
+// Update user info when selecting a user
+function onUserChange() {
+    const usernameSelect = document.getElementById("username");
+    currentAnnotator = usernameSelect.value;
+
+    const user = usersData.find(u => u[0] === currentAnnotator);
+    if (user) {
+        currentDialect = user[1];
+        currentRegion = user[2];
+        document.getElementById("dialect").textContent = `Dialect: ${currentDialect}`;
+        document.getElementById("region").textContent = `Region: ${currentRegion}`;
+    }
+    loadAnnotations();
+    displayDialogue();
 }
 
-// Save annotation data to localStorage
-function saveLocalAnnotations(data) {
-    localStorage.setItem(localStorageKey, JSON.stringify(data));
-}
-
-// Initialize page
-async function init() {
-    await loadUsers();
-    const csvData = await loadCSV("data.csv");
-    const parsedData = parseCSV(csvData);
-    totalRows = parsedData.rows.length;
-    originalData = parsedData.rows;
-    annotatorProgress = loadLocalAnnotations();
-    updateProgress();
-}
-
-// Update progress
-function updateProgress() {
-    const progressText = `${currentIndex}/${totalRows}`;
-    document.getElementById("progress-text").textContent = progressText;
-    const progressPercent = (currentIndex / totalRows) * 100;
-    document.getElementById("progress-bar-fill").style.width = `${progressPercent}%`;
-}
-
-// Display dialogue and translation
+// Display dialogue and input fields
 function displayDialogue() {
     const dialogueBox = document.getElementById("original-dialogue");
-    const translationBox = document.getElementById("translation-box");
+    const translateBox = document.getElementById("translate-dialogue");
     dialogueBox.innerHTML = "";
-    translationBox.innerHTML = "";
+    translateBox.innerHTML = "";
 
-    if (currentIndex >= totalRows) {
+    if (currentRow >= totalRows) {
         dialogueBox.innerHTML = "<p>All annotations finished</p>";
-        translationBox.innerHTML = "<p>All annotations finished</p>";
+        translateBox.innerHTML = "<p>All annotations finished</p>";
+        updateProgress();
         return;
     }
 
-    const row = originalData[currentIndex];
-    row.forEach((text, index) => {
-        const dialogueDiv = document.createElement("div");
-        dialogueDiv.innerHTML = `<b>${originalData[0][index]}:</b> ${text}`;
-        dialogueBox.appendChild(dialogueDiv);
+    const row = parsedData.rows[currentRow];
+    parsedData.headers.forEach((header, index) => {
+        const dialogue = row[index];
+        const translateInput = document.createElement("input");
+        translateInput.type = "text";
+        translateInput.placeholder = "Translate to your dialect";
+        translateInput.value = annotations[currentRow]?.[index] || "";
+        translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
-        const translationDiv = document.createElement("div");
-        translationDiv.innerHTML = `<label>${originalData[0][index]}:</label>
-                                    <textarea id="translation-${index}" placeholder="Translate to your dialect"></textarea>`;
-        translationBox.appendChild(translationDiv);
+        dialogueBox.innerHTML += `<p><strong>${header}:</strong> ${dialogue}</p>`;
+        translateBox.appendChild(translateInput);
     });
+
+    updateProgress();
 }
 
-// Save annotations
-function saveAnnotations() {
-    const username = document.getElementById("username").value;
-    const translations = [];
-    originalData[currentIndex].forEach((_, index) => {
-        const input = document.getElementById(`translation-${index}`);
-        translations.push(input.value);
-    });
-
-    if (!annotatorProgress[username]) {
-        annotatorProgress[username] = [];
+// Save translation for the current row
+function saveTranslation(index, value) {
+    if (!annotations[currentRow]) {
+        annotations[currentRow] = [];
     }
-
-    annotatorProgress[username].push(translations);
-    saveLocalAnnotations(annotatorProgress);
-    currentIndex++;
-    updateProgress();
-    displayDialogue();
-}
-
-// Reset annotations
-function resetAnnotations() {
-    annotatorProgress = {};
-    saveLocalAnnotations(annotatorProgress);
-    currentIndex = 0;
-    updateProgress();
-    displayDialogue();
-}
-
-// Next button click
-function nextDialogue() {
+    annotations[currentRow][index] = value;
     saveAnnotations();
-    if (currentIndex >= totalRows) {
-        alert("All annotations finished!");
-    } else {
-        displayDialogue();
+}
+
+// Save annotations to localStorage
+function saveAnnotations() {
+    localStorage.setItem(`annotations_${currentAnnotator}`, JSON.stringify(annotations));
+}
+
+// Load annotations from localStorage
+function loadAnnotations() {
+    const storedData = localStorage.getItem(`annotations_${currentAnnotator}`);
+    annotations = storedData ? JSON.parse(storedData) : {};
+    currentRow = Object.keys(annotations).length;
+    updateProgress();
+    displayDialogue();
+}
+
+// Update progress bar
+function updateProgress() {
+    const progressBar = document.getElementById("progress-bar-fill");
+    const progressText = document.getElementById("progress-text");
+    const progress = Math.min(currentRow / totalRows * 100, 100);
+    progressBar.style.width = progress + "%";
+    progressText.textContent = `${currentRow}/${totalRows}`;
+}
+
+// Move to next row
+function nextRow() {
+    currentRow++;
+    if (currentRow >= totalRows) {
+        currentRow = totalRows;
+        alert("All annotations completed!");
     }
+    displayDialogue();
+}
+
+// Save all annotations to CSV
+function downloadAnnotations() {
+    let csvContent = "Annotator,Dialect,Region";
+    parsedData.headers.forEach(header => {
+        csvContent += `,${header}`;
+    });
+    csvContent += "\n";
+
+    Object.keys(annotations).forEach(row => {
+        const rowData = annotations[row].join(",");
+        csvContent += `${currentAnnotator},${currentDialect},${currentRegion},${rowData}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'annotations.csv';
+    a.click();
+}
+
+// Reset all annotations
+function resetAnnotations() {
+    localStorage.clear();
+    annotations = {};
+    currentRow = 0;
+    updateProgress();
+    displayDialogue();
 }
 
 // Admin login
 function adminLogin() {
     const username = document.getElementById("admin-username").value;
     const password = document.getElementById("admin-password").value;
-    if (username === "Ira" && password === "qwerty12345") {
-        document.getElementById("admin-dashboard").style.display = "block";
-        loadAdminDashboard();
+    if (username === "ira" && password === "1234") {
+        alert("Admin login successful!");
+        displayAdminDashboard();
     } else {
-        alert("Invalid username or password!");
+        alert("Invalid credentials!");
     }
 }
 
-// Load admin dashboard
-function loadAdminDashboard() {
-    const dashboardBody = document.getElementById("dashboard-body");
-    dashboardBody.innerHTML = "";
+// Display admin dashboard
+function displayAdminDashboard() {
+    const dashboard = document.getElementById("admin-dashboard");
+    dashboard.style.display = "block";
+    const tableBody = document.getElementById("dashboard-table-body");
+    tableBody.innerHTML = "";
 
-    Object.keys(annotatorProgress).forEach(username => {
-        const userProgress = annotatorProgress[username].length;
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${username}</td>
-                         <td>${userProgress}/${totalRows}</td>
-                         <td><button onclick="viewDetails('${username}')">View</button></td>`;
-        dashboardBody.appendChild(row);
+    usersData.forEach(user => {
+        const annotator = user[0];
+        const dialect = user[1];
+        const annotationCount = localStorage.getItem(`annotations_${annotator}`) ? Object.keys(JSON.parse(localStorage.getItem(`annotations_${annotator}`))).length : 0;
+        const progress = `${annotationCount}/${totalRows}`;
+
+        const row = `<tr>
+            <td>${annotator}</td>
+            <td>${dialect}</td>
+            <td>${progress}</td>
+            <td><button onclick="viewAnnotations('${annotator}')">View</button></td>
+        </tr>`;
+        tableBody.innerHTML += row;
     });
 }
 
-// View annotation details
-function viewDetails(username) {
-    const detailBody = document.getElementById("annotation-body");
-    detailBody.innerHTML = "";
-
-    annotatorProgress[username].forEach((annotation, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${username}</td><td>${index + 1}</td>`;
-        annotation.forEach(text => {
-            row.innerHTML += `<td>${text}</td>`;
-        });
-        detailBody.appendChild(row);
-    });
-
-    document.getElementById("annotation-details").style.display = "block";
+// View annotations
+function viewAnnotations(annotator) {
+    const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`));
+    alert(`Annotations for ${annotator}: ${JSON.stringify(data)}`);
 }
 
-// Event listeners
-document.getElementById("save-button").addEventListener("click", saveAnnotations);
-document.getElementById("next-button").addEventListener("click", nextDialogue);
-document.getElementById("admin-login").addEventListener("click", adminLogin);
-document.getElementById("reset-button").addEventListener("click", resetAnnotations);
-
-// Initialize the page
-init();
+// Initialize on page load
+window.onload = init;
