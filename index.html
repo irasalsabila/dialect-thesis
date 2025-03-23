@@ -8,94 +8,77 @@
 </head>
 <body>
     <div class="container">
+
         <!-- Original Dialogue Box -->
-        <div class="box dialogue-box" id="dialogue-box">
+        <div class="box" id="original-box">
             <h2>Original Dialogue</h2>
-            <div id="dialogue" class="dialogue">
-                <!-- Original dialogue lines will appear here -->
-            </div>
+            <div id="original-dialogue" class="dialogue-box"></div>
         </div>
 
         <!-- Translation Box -->
-        <div class="box translation-box" id="translation-box">
+        <div class="box" id="translation-box">
             <h2>Translate to Your Own Dialect</h2>
-            <div id="translation" class="translation">
-                <!-- Translation input fields will appear here -->
-            </div>
+            <div id="translation-dialogue" class="dialogue-box"></div>
         </div>
 
-        <!-- User Info and Controls -->
-        <div class="box control-box" id="info-box">
-            <div class="info-section">
-                <label for="username">Username:</label>
-                <select id="username">
-                    <option value="">Select User</option>
-                </select>
-
-                <label for="dialect">Dialect:</label>
-                <span id="dialect-info">-</span>
-
-                <label for="region">Region:</label>
-                <span id="region-info">-</span>
-
-                <label>Progress:</label>
-                <div class="progress-container">
-                    <progress id="progress-bar" value="0" max="100"></progress>
-                    <span id="progress-text">0/0</span>
-                </div>
+        <!-- User Info and Controls Box -->
+        <div class="box" id="info-box">
+            <label for="username">Username:</label>
+            <select id="username"></select>
+            <label for="dialect">Dialect:</label>
+            <div id="dialect-display" class="info-display"></div>
+            <label for="region">Region:</label>
+            <div id="region-display" class="info-display"></div>
+            <label for="progress">Progress:</label>
+            <div id="progress-display" class="info-display">0/0</div>
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
             </div>
-
             <div class="button-group">
-                <button id="save-button" class="btn save">Save</button>
-                <button id="next-button" class="btn next">Next</button>
+                <button id="save" class="btn save">Save</button>
+                <button id="next" class="btn next">Next</button>
+                <button id="admin-login" class="btn admin">Admin Login</button>
             </div>
-
-            <!-- Admin Login -->
-            <div class="admin-login" id="admin-login" style="display: none;">
-                <h3>Admin Access</h3>
-                <label for="admin-username">Username:</label>
-                <input type="text" id="admin-username" placeholder="Username">
-                <label for="admin-password">Password:</label>
-                <input type="password" id="admin-password" placeholder="Password">
-                <button id="admin-login-submit" class="btn admin">Login</button>
-            </div>
-
-            <!-- Admin Dashboard -->
-            <button id="admin-login-button" class="btn admin-login">Admin Login</button>
         </div>
+    </div>
 
-        <!-- Admin Dashboard -->
-        <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
-            <h3>Admin Dashboard</h3>
-            <table id="admin-table">
-                <thead>
-                    <tr>
-                        <th>Annotator</th>
-                        <th>Dialect</th>
-                        <th>Progress</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody id="progress-list">
-                    <!-- Progress rows will be dynamically added here -->
-                </tbody>
-            </table>
+    <!-- Admin Access -->
+    <div class="admin-login" id="admin-login-box">
+        <h3>Admin Access</h3>
+        <label for="admin-username">Username:</label>
+        <input type="text" id="admin-username" placeholder="Username">
+        <label for="admin-password">Password:</label>
+        <input type="password" id="admin-password" placeholder="Password">
+        <button onclick="adminLogin()" class="btn login">Login</button>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+        <h3>Admin Dashboard</h3>
+        <table id="admin-table">
+            <thead>
+                <tr>
+                    <th>Annotator</th>
+                    <th>Dialect</th>
+                    <th>Progress</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="progress-list"></tbody>
+        </table>
+        <div class="admin-buttons">
             <button class="btn download" onclick="downloadAllAnnotations()">Download All Annotations</button>
             <button class="btn reset" onclick="resetAnnotations()">Reset All Annotations</button>
         </div>
+    </div>
 
-        <!-- Annotation Details Table -->
-        <div class="annotation-details" id="annotation-details" style="display: none;">
-            <h3>Annotation Details</h3>
-            <table id="annotation-table">
-                <thead>
-                    <!-- Dynamic headers will be loaded here -->
-                </thead>
-                <tbody id="annotation-body">
-                    <!-- Annotation rows will be dynamically added here -->
-                </tbody>
-            </table>
-        </div>
+    <!-- Annotation Details -->
+    <div class="annotation-details" id="annotation-details" style="display: none;">
+        <h3>Annotation Details</h3>
+        <table id="annotation-table">
+            <thead id="annotation-header"></thead>
+            <tbody id="annotation-body"></tbody>
+        </table>
     </div>
 
     <script src="script.js"></script>
