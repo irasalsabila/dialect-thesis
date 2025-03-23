@@ -31,7 +31,7 @@ function updateProgress(current, total) {
     const progressPercentage = (current / total) * 100;
 
     progressBar.value = progressPercentage;
-    progressText.textContent = `${current}/${total}`;
+    progressText.textContent = `${current + 1}/${total}`;
 }
 
 // Load progress for the current annotator
@@ -65,30 +65,38 @@ function displayRow(data, rowIndex) {
     const row = data.rows[rowIndex];
     data.headers.forEach((speaker, idx) => {
         const text = row[idx] || "";
-        const div = document.createElement("div");
-        div.className = "dialogue-item";
-        div.innerHTML = `<strong>${speaker}:</strong> ${text}`;
-        dialogueBox.appendChild(div);
 
+        // Original dialogue display
+        const dialogueDiv = document.createElement("div");
+        dialogueDiv.className = "dialogue-item";
+        dialogueDiv.innerHTML = `<strong>${speaker}:</strong> ${text}`;
+        dialogueBox.appendChild(dialogueDiv);
+
+        // Translation input display
         const inputDiv = document.createElement("div");
         inputDiv.className = "translation-item";
         const inputId = `${speaker}-${rowIndex}`;
+        const savedTranslation = annotations[inputId] || "";
         inputDiv.innerHTML = `
             <label for="${inputId}">${speaker}:</label>
-            <input type="text" id="${inputId}" class="translation-input" placeholder="Translate to your dialect" value="${annotations[inputId] || ''}">
+            <input type="text" id="${inputId}" class="translation-input" placeholder="Translate to your dialect" value="${savedTranslation}">
         `;
         translationBox.appendChild(inputDiv);
     });
+
+    updateProgress(currentRow, totalRows);
 }
 
-// Save translations to a file
+// Save translations to a CSV file
 function saveTranslations(data) {
     const inputs = document.querySelectorAll(".translation-input");
 
+    // Update annotations object with current inputs
     inputs.forEach(input => {
         annotations[input.id] = input.value;
     });
 
+    // Save progress in local storage
     saveAnnotatorProgress();
 
     // Prepare CSV data
@@ -123,6 +131,19 @@ function loadNextRow(data) {
     }
 }
 
+// Load saved translations from local storage
+function loadTranslations() {
+    const savedData = localStorage.getItem(`progress_${annotator}`);
+    if (savedData) {
+        const progress = JSON.parse(savedData);
+        annotations = progress.annotations || {};
+        currentRow = progress.currentRow || 0;
+        alert("Translations loaded successfully!");
+    } else {
+        alert("No saved translations found.");
+    }
+}
+
 // Initialize the page
 async function init() {
     const users = ["Annotator1", "Annotator2", "Annotator3"];
@@ -137,17 +158,29 @@ async function init() {
         userSelect.appendChild(option);
     });
 
-    // Handle annotator selection
+    const dialectSelect = document.getElementById("dialect");
+    dialects.forEach(dialect => {
+        let option = document.createElement("option");
+        option.value = dialect;
+        option.textContent = dialect;
+        dialectSelect.appendChild(option);
+    });
+
+    // Annotator selection event
     userSelect.addEventListener("change", async () => {
         annotator = userSelect.value;
+        if (!annotator) return;
+
         const csvData = await loadCSV("data.csv");
         const parsedData = parseCSV(csvData);
         totalRows = parsedData.rows.length;
+
         loadAnnotatorProgress();
         displayRow(parsedData, currentRow);
 
         // Event listeners for buttons
         document.getElementById("save-button").addEventListener("click", () => saveTranslations(parsedData));
+        document.getElementById("load-button").addEventListener("click", loadTranslations);
         document.getElementById("next-button").addEventListener("click", () => loadNextRow(parsedData));
 
         updateProgress(currentRow, totalRows);
