@@ -85,13 +85,24 @@ function displayDialogue() {
     const row = parsedData.rows[currentRow];
     parsedData.headers.forEach((header, index) => {
         const dialogue = row[index];
+
+        // Original Dialogue Display
+        const dialogueElement = document.createElement("p");
+        dialogueElement.innerHTML = `<strong>${header}:</strong> ${dialogue}`;
+        dialogueBox.appendChild(dialogueElement);
+
+        // Translation Box with Speaker Name
+        const translateLabel = document.createElement("label");
+        translateLabel.textContent = `${header}:`;
+        translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
-        dialogueBox.innerHTML += `<p><strong>${header}:</strong> ${dialogue}</p>`;
+        // Add the label and input to the translation box
+        translateBox.appendChild(translateLabel);
         translateBox.appendChild(translateInput);
     });
 
@@ -155,7 +166,7 @@ function adminLogin() {
     const username = prompt("Enter Admin Username:");
     const password = prompt("Enter Admin Password:");
 
-    if (username === "Ira" && password === "qwerty12345") {
+    if (username === "ira" && password === "1234") {
         alert("Admin login successful!");
         displayAdminDashboard();
     } else {
@@ -186,10 +197,71 @@ function displayAdminDashboard() {
     });
 }
 
-// View annotations
+// View annotations in a structured table format and enable download
+// View annotations in a structured table format and enable download
 function viewAnnotations(annotator) {
     const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
-    alert(`Annotations for ${annotator}: ${JSON.stringify(data)}`);
+    const annotationTable = document.getElementById("annotation-table");
+    const annotationHeader = document.getElementById("annotation-header");
+    const annotationBody = document.getElementById("annotation-body");
+    annotationHeader.innerHTML = "";
+    annotationBody.innerHTML = "";
+
+    const user = usersData.find(u => u[0] === annotator);
+    const dialect = user ? user[1] : "Unknown";
+
+    // Dynamically generate headers from data.csv
+    const headers = ["annotation", "dialect", ...parsedData.headers];
+    let csvContent = headers.join(",") + "\n";
+
+    // Create header row
+    const headerRow = document.createElement("tr");
+    headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headerRow.appendChild(th);
+    });
+    annotationHeader.appendChild(headerRow);
+
+    // Create table rows and CSV content
+    Object.keys(data).forEach((rowIndex) => {
+        const row = data[rowIndex];
+        const tr = document.createElement("tr");
+        const rowData = [annotator, dialect];
+
+        row.forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value || "-";
+            tr.appendChild(td);
+            rowData.push(value || "-");
+        });
+
+        annotationBody.appendChild(tr);
+        csvContent += rowData.join(",") + "\n";
+    });
+
+    // Add download button for CSV
+    const downloadBtn = document.getElementById("download-annotations");
+    downloadBtn.style.display = "inline-block";
+    downloadBtn.onclick = () => downloadCSV(csvContent, `${annotator}_annotations.csv`);
+
+    // Show annotation details
+    const annotationDetails = document.getElementById("annotation-details");
+    annotationDetails.style.display = "block";
+}
+
+// Download CSV function
+function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+}
+
+// Close annotation details
+function closeAnnotationDetails() {
+    document.getElementById("annotation-details").style.display = "none";
 }
 
 // Event listeners

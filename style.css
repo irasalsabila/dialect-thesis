@@ -70,7 +70,6 @@ textarea {
 
 /* Button Styles */
 button {
-    background-color: #4CAF50;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -80,22 +79,31 @@ button {
     font-size: 16px;
 }
 
-button:hover {
-    background-color: #45a049;
-}
-
+/* Default Button */
 .btn {
     background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    margin: 5px;
-    border-radius: 5px;
-    cursor: pointer;
 }
 
 .btn:hover {
     background-color: #45a049;
+}
+
+/* Reset Button (Red) */
+#reset {
+    background-color: #f44336;
+}
+
+#reset:hover {
+    background-color: #d32f2f;
+}
+
+/* Admin Login Button (Blue) */
+#admin-login {
+    background-color: #007BFF;
+}
+
+#admin-login:hover {
+    background-color: #0056b3;
 }
 
 /* Progress Bar */
@@ -146,15 +154,6 @@ tr:hover {
     border-radius: 5px;
 }
 
-#login {
-    background-color: #007BFF;
-    color: white;
-}
-
-#login:hover {
-    background-color: #0056b3;
-}
-
 /* Admin Dashboard */
 #dashboard-table {
     margin-top: 10px;
@@ -183,4 +182,10 @@ tr:hover {
         width: 100%;
         margin: 5px 0;
     }
+}
+
+/* Translation Label Styling */
+.translation-label {
+    margin: 5px 0;
+    font-weight: bold;
 }
