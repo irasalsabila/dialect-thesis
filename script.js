@@ -171,9 +171,10 @@ async function init() {
     const parsedData = parseCSV(csvData);
     totalRows = parsedData.rows.length;
 
-    // Set predefined usernames
+    // Set predefined usernames directly in the dropdown
     const usernameSelect = document.getElementById("username");
-    ["Aldo", "Budi", "Cika"].forEach(name => {
+    const usernames = ["Aldo", "Budi", "Cika"];
+    usernames.forEach(name => {
         const option = document.createElement("option");
         option.value = name;
         option.textContent = name;
@@ -183,6 +184,7 @@ async function init() {
     document.getElementById("username").addEventListener("change", () => {
         annotator = document.getElementById("username").value;
         currentRow = 0;
+        annotations = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
         displayRow(parsedData, currentRow);
     });
 
