@@ -24,6 +24,7 @@ label {
     margin: 5px 0;
 }
 
+/* Container for Side-by-Side Layout */
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -38,9 +39,15 @@ label {
     padding: 20px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     margin: 15px;
-    flex: 1 1 100%; /* Full width for better alignment */
-    max-width: 100%; /* Ensure the box stretches to the full width */
+    flex: 1 1 45%;  /* Adjusted to take half the width */
+    max-width: 45%; /* Ensures side-by-side layout */
     box-sizing: border-box;
+}
+
+/* Full-Width Box (for Control and Admin) */
+.full-width-box {
+    flex: 1 1 90%;  /* Take almost full width */
+    max-width: 90%; /* Ensures wide layout */
 }
 
 /* Dialogue Box Styling */
