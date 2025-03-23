@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Left Box: Original Dialogue (POST) -->
+        <!-- Left Box: Original Dialogue -->
         <div class="box" id="post-box">
             <h2>Original Dialogue</h2>
             <div id="dialogue">
@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <!-- Middle Box: Translated/Annotated Dialogue (GET) -->
+        <!-- Middle Box: Translated/Annotated Dialogue -->
         <div class="box" id="get-box">
             <h2>Translate to Your Own Dialect</h2>
             <div id="translation">
@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <!-- Right Box: Dropdowns and Progress Bar -->
+        <!-- Right Box: Dropdowns, Progress Bar, and Buttons -->
         <div class="box" id="info-box">
             <!-- Annotator Selection -->
             <div>
@@ -33,6 +33,7 @@
                     <option value="">Select User</option>
                 </select>
             </div>
+
             <!-- Dialect Selection -->
             <div>
                 <label for="dialect">Dialect:</label>
@@ -43,18 +44,21 @@
                     <option value="Dialect C">Dialect C</option>
                 </select>
             </div>
-            <!-- Progress Bar and Text -->
+
+            <!-- Progress Bar -->
             <div id="progress">
                 <label>Progress:</label>
                 <progress id="progress-bar" value="0" max="100"></progress>
                 <span id="progress-text">0/0</span>
             </div>
+
             <!-- Action Buttons -->
             <div id="actions">
                 <button id="save-button">Save Translations</button>
                 <button id="next-button">Next</button>
             </div>
-            <!-- Summary Box -->
+
+            <!-- Annotation Summary (Shown After Completion) -->
             <div id="summary-box" style="display: none;">
                 <h2>Annotation Summary</h2>
                 <div id="summary"></div>
@@ -62,6 +66,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Admin Login Section -->
+    <div class="container" id="admin-login" style="display: none;">
+        <h2>Admin Access</h2>
+        <label for="admin-username">Username:</label>
+        <input type="text" id="admin-username" placeholder="Username">
+        <label for="admin-password">Password:</label>
+        <input type="password" id="admin-password" placeholder="Password">
+        <button id="admin-login-button">Login</button>
+    </div>
+
+
+    <!-- Admin Dashboard -->
+    <div class="container" id="admin-dashboard" style="display: none;">
+        <h2>Admin Dashboard</h2>
+        <div id="progress-list"></div>
+        <button id="admin-download-button">Download All Annotations</button>
+    </div>
+
     <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
