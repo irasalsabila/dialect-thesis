@@ -87,7 +87,7 @@ function displayRow(data, rowIndex) {
     updateProgress(currentRow, totalRows);
 }
 
-// Save translations to a CSV file
+// Save translations to localStorage
 function saveTranslations(data) {
     const inputs = document.querySelectorAll(".translation-input");
 
@@ -99,7 +99,28 @@ function saveTranslations(data) {
     // Save progress in local storage
     saveAnnotatorProgress();
 
-    // Prepare CSV data
+    alert("Translations saved successfully!");
+}
+
+// Show the summary of all annotations
+function showSummary(data) {
+    const summaryBox = document.getElementById("summary-box");
+    const summaryDiv = document.getElementById("summary");
+    summaryDiv.innerHTML = "";
+
+    data.rows.forEach((row, rowIndex) => {
+        const annotatedRow = data.headers.map((speaker, colIndex) => annotations[`${speaker}-${rowIndex}`] || "");
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "summary-item";
+        rowDiv.innerText = `Row ${rowIndex + 1}: ${annotatedRow.join(" | ")}`;
+        summaryDiv.appendChild(rowDiv);
+    });
+
+    summaryBox.style.display = "block";
+}
+
+// Download all annotations as CSV
+function downloadAnnotations(data) {
     const translatedRows = data.rows.map((row, rowIndex) => 
         data.headers.map((speaker, colIndex) => annotations[`${speaker}-${rowIndex}`] || "")
     );
@@ -112,14 +133,12 @@ function saveTranslations(data) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "translate.csv";
+    a.download = "annotated_translations.csv";
     a.click();
     URL.revokeObjectURL(url);
-
-    alert("Translations saved successfully!");
 }
 
-// Load the next row
+// Load the next row or show summary if finished
 function loadNextRow(data) {
     if (currentRow < totalRows - 1) {
         currentRow++;
@@ -127,29 +146,15 @@ function loadNextRow(data) {
         updateProgress(currentRow, totalRows);
         saveAnnotatorProgress();
     } else {
-        alert("All rows have been completed!");
-    }
-}
-
-// Load saved translations from local storage
-function loadTranslations() {
-    const savedData = localStorage.getItem(`progress_${annotator}`);
-    if (savedData) {
-        const progress = JSON.parse(savedData);
-        annotations = progress.annotations || {};
-        currentRow = progress.currentRow || 0;
-        alert("Translations loaded successfully!");
-    } else {
-        alert("No saved translations found.");
+        showSummary(data);
     }
 }
 
 // Initialize the page
 async function init() {
     const users = ["Annotator1", "Annotator2", "Annotator3"];
-    const dialects = ["Dialect A", "Dialect B", "Dialect C"];
 
-    // Populate dropdowns
+    // Populate annotator dropdown
     const userSelect = document.getElementById("username");
     users.forEach(user => {
         let option = document.createElement("option");
@@ -158,15 +163,7 @@ async function init() {
         userSelect.appendChild(option);
     });
 
-    const dialectSelect = document.getElementById("dialect");
-    dialects.forEach(dialect => {
-        let option = document.createElement("option");
-        option.value = dialect;
-        option.textContent = dialect;
-        dialectSelect.appendChild(option);
-    });
-
-    // Annotator selection event
+    // Handle annotator selection
     userSelect.addEventListener("change", async () => {
         annotator = userSelect.value;
         if (!annotator) return;
@@ -178,10 +175,10 @@ async function init() {
         loadAnnotatorProgress();
         displayRow(parsedData, currentRow);
 
-        // Event listeners for buttons
+        // Event listeners
         document.getElementById("save-button").addEventListener("click", () => saveTranslations(parsedData));
-        document.getElementById("load-button").addEventListener("click", loadTranslations);
         document.getElementById("next-button").addEventListener("click", () => loadNextRow(parsedData));
+        document.getElementById("download-button").addEventListener("click", () => downloadAnnotations(parsedData));
 
         updateProgress(currentRow, totalRows);
     });
