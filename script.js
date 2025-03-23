@@ -184,7 +184,16 @@ function loadAdminDashboard() {
     }
 }
 
-// View annotation details
+// Reset all annotations and progress
+function resetAnnotations() {
+    if (confirm("Are you sure you want to reset all annotations? This action cannot be undone.")) {
+        localStorage.clear();
+        alert("All annotations and progress have been reset.");
+        location.reload();
+    }
+}
+
+// View annotation details in a better format
 async function viewDetails(annotatorName) {
     const annotationDetails = document.getElementById("annotation-details");
     const annotationBody = document.getElementById("annotation-body");
@@ -208,15 +217,18 @@ async function viewDetails(annotatorName) {
     // Load annotation data from localStorage
     const data = JSON.parse(localStorage.getItem(`annotations_${annotatorName}`)) || {};
     annotationBody.innerHTML = "";
-    const row = document.createElement("tr");
 
-    // Fill the row with annotation data
-    row.innerHTML = `
-        <td>${annotatorName}</td>
-        <td>${data.dialect || "N/A"}</td>
-        ${parsedData.headers.map(header => `<td>${data[header] || ""}</td>`).join("")}
-    `;
-    annotationBody.appendChild(row);
+    // Iterate through the annotated rows and display them properly
+    const totalRows = data.rows ? data.rows.length : 0;
+    for (let i = 0; i < totalRows; i++) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${annotatorName}</td>
+            <td>${data.dialect || "N/A"}</td>
+            ${parsedData.headers.map(header => `<td>${data.rows[i][header] || ""}</td>`).join("")}
+        `;
+        annotationBody.appendChild(row);
+    }
 }
 
 // Initialize the page

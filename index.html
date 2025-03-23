@@ -9,44 +9,59 @@
 <body>
     <div class="container">
         <!-- Original Dialogue Box -->
-        <div class="box" id="dialogue-box">
+        <div class="box dialogue-box" id="dialogue-box">
             <h2>Original Dialogue</h2>
-            <div id="dialogue" class="dialogue"></div>
+            <div id="dialogue" class="dialogue">
+                <!-- Original dialogue lines will appear here -->
+            </div>
         </div>
 
         <!-- Translation Box -->
-        <div class="box" id="translation-box">
+        <div class="box translation-box" id="translation-box">
             <h2>Translate to Your Own Dialect</h2>
-            <div id="translation" class="translation"></div>
+            <div id="translation" class="translation">
+                <!-- Translation input fields will appear here -->
+            </div>
         </div>
 
         <!-- User Info and Controls -->
-        <div class="box" id="info-box">
+        <div class="box control-box" id="info-box">
             <div class="info-section">
                 <label for="username">Username:</label>
                 <select id="username">
                     <option value="">Select User</option>
                 </select>
-                <p>Dialect: <span id="dialect-info">-</span></p>
-                <p>Region: <span id="region-info">-</span></p>
-                <p>Progress: <span id="progress-text">0/0</span></p>
-                <progress id="progress-bar" value="0" max="100"></progress>
+
+                <label for="dialect">Dialect:</label>
+                <span id="dialect-info">-</span>
+
+                <label for="region">Region:</label>
+                <span id="region-info">-</span>
+
+                <label>Progress:</label>
+                <div class="progress-container">
+                    <progress id="progress-bar" value="0" max="100"></progress>
+                    <span id="progress-text">0/0</span>
+                </div>
             </div>
+
             <div class="button-group">
                 <button id="save-button" class="btn save">Save</button>
                 <button id="next-button" class="btn next">Next</button>
-                <button id="admin-login-button" class="btn admin">Admin Login</button>
             </div>
-        </div>
 
-        <!-- Admin Login -->
-        <div class="admin-login" id="admin-login" style="display: none;">
-            <h3>Admin Access</h3>
-            <label for="admin-username">Username:</label>
-            <input type="text" id="admin-username" placeholder="Username">
-            <label for="admin-password">Password:</label>
-            <input type="password" id="admin-password" placeholder="Password">
-            <button id="admin-login-submit" class="btn admin">Login</button>
+            <!-- Admin Login -->
+            <div class="admin-login" id="admin-login" style="display: none;">
+                <h3>Admin Access</h3>
+                <label for="admin-username">Username:</label>
+                <input type="text" id="admin-username" placeholder="Username">
+                <label for="admin-password">Password:</label>
+                <input type="password" id="admin-password" placeholder="Password">
+                <button id="admin-login-submit" class="btn admin">Login</button>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <button id="admin-login-button" class="btn admin-login">Admin Login</button>
         </div>
 
         <!-- Admin Dashboard -->
@@ -66,6 +81,7 @@
                 </tbody>
             </table>
             <button class="btn download" onclick="downloadAllAnnotations()">Download All Annotations</button>
+            <button class="btn reset" onclick="resetAnnotations()">Reset All Annotations</button>
         </div>
 
         <!-- Annotation Details Table -->
