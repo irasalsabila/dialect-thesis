@@ -7,7 +7,8 @@ body {
 
 .container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
+    flex-wrap: wrap;
     padding: 20px;
 }
 
@@ -16,28 +17,26 @@ body {
     padding: 20px;
     margin: 10px;
     width: 30%;
-    height: 450px;
-    overflow-y: auto;
+    min-width: 300px;
     background-color: white;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
+h2, h3 {
     margin-top: 0;
     font-size: 1.5em;
-    font-weight: bold;
+    color: #333;
 }
 
 label {
-    margin-right: 10px;
     font-weight: bold;
+    margin-right: 10px;
 }
 
 progress {
     width: 100%;
     height: 20px;
-    margin-bottom: 5px;
 }
 
 #progress-text {
@@ -46,15 +45,9 @@ progress {
     display: inline-block;
 }
 
-#actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
 button {
     padding: 10px 20px;
+    margin: 5px;
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -68,37 +61,27 @@ button:hover {
     background-color: #45a049;
 }
 
-.translation-input {
-    width: calc(100% - 20px);
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
+#admin-login-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#admin-login-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
 }
 
-.dialogue-item {
-    margin: 5px 0;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+#admin-login-button:hover {
+    background-color: #0056b3;
 }
 
-.translation-item {
-    margin: 5px 0;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #e9e9e9;
-}
-
-.translation-item label {
-    margin-bottom: 5px;
-    display: block;
-}
-
-.translation-item input {
+input[type="text"], input[type="password"], select {
     width: 100%;
     padding: 8px;
     margin: 5px 0;
@@ -106,29 +89,72 @@ button:hover {
     border-radius: 5px;
 }
 
-select {
-    padding: 8px;
-    margin: 5px 0;
+input:focus, select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+#admin-login {
+    margin-top: 20px;
+    width: 300px;
+    padding: 20px;
+    background-color: white;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 1em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#admin-dashboard {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#summary-box {
+    margin-top: 20px;
+}
+
+.dialogue-item, .translation-item {
+    margin: 8px 0;
+}
+
+.translation-input {
     width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
-select:focus {
+.translation-input:focus {
     outline: none;
     border-color: #4CAF50;
     box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
 }
 
-#info-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.summary-item {
+    margin: 5px 0;
+    padding: 5px;
+    border-bottom: 1px solid #eee;
 }
 
-input:focus, button:focus, select:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+h3 {
+    color: #444;
+}
+
+button#download-button, button#admin-download-button {
+    background-color: #2196F3;
+}
+
+button#download-button:hover, button#admin-download-button:hover {
+    background-color: #1E88E5;
+}
+
+button#save-button, button#next-button {
+    width: 48%;
+    margin: 5px 1%;
 }

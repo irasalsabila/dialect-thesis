@@ -5,35 +5,6 @@ let annotator = "";
 let annotations = {};
 let isAdmin = false;
 
-// Simple hashing function using SHA-256
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-// Admin login with hashed password check
-async function adminLogin() {
-    const username = document.getElementById("admin-username").value;
-    const password = document.getElementById("admin-password").value;
-    const hashedPassword = await hashPassword(password);
-
-    // Predefined hashed password for "qwerty12345"
-    const validHashedPassword = "8cb2237d0679ca88db6464eac60da96345513964";
-
-    if (username === "Ira" && hashedPassword === validHashedPassword) {
-        isAdmin = true;
-        alert("Admin login successful!");
-        document.getElementById("admin-login").style.display = "none";
-        document.getElementById("admin-dashboard").style.display = "block";
-        loadAdminDashboard();
-    } else {
-        alert("Invalid username or password!");
-    }
-}
-
 // Utility function to load CSV data
 async function loadCSV(url) {
     try {
@@ -58,10 +29,10 @@ function parseCSV(data) {
 function updateProgress(current, total) {
     const progressBar = document.getElementById("progress-bar");
     const progressText = document.getElementById("progress-text");
-    const progressPercentage = (current / total) * 100;
+    const progressPercentage = ((current + 1) / total) * 100;
 
     progressBar.value = progressPercentage;
-    progressText.textContent = `${current + 1}/${total}`;
+    progressText.textContent = `${Math.min(current + 1, total)}/${total}`;
 }
 
 // Display "All annotations finished" when done
@@ -179,6 +150,28 @@ async function onAnnotatorChange() {
     updateProgress(currentRow, totalRows);
 }
 
+// Admin login toggle button handler
+document.getElementById("admin-login-button").addEventListener("click", () => {
+    const adminLogin = document.getElementById("admin-login");
+    adminLogin.style.display = adminLogin.style.display === "block" ? "none" : "block";
+});
+
+// Admin login with hashed password check
+async function adminLogin() {
+    const username = document.getElementById("admin-username").value;
+    const password = document.getElementById("admin-password").value;
+
+    if (username === "Ira" && password === "qwerty12345") {
+        isAdmin = true;
+        alert("Admin login successful!");
+        document.getElementById("admin-login").style.display = "none";
+        document.getElementById("admin-dashboard").style.display = "block";
+        loadAdminDashboard();
+    } else {
+        alert("Invalid username or password!");
+    }
+}
+
 // Admin dashboard progress list
 function loadAdminDashboard() {
     const progressList = document.getElementById("progress-list");
@@ -189,9 +182,27 @@ function loadAdminDashboard() {
             const annotatorName = key.replace("progress_", "");
             const progress = JSON.parse(localStorage.getItem(key));
             const completed = progress.currentRow + 1;
-            progressList.innerHTML += `${annotatorName} - ${completed}/${totalRows}<br>`;
+            progressList.innerHTML += `${annotatorName} - ${Math.min(completed, totalRows)}/${totalRows}<br>`;
         }
     }
+}
+
+// Admin download all annotations
+function downloadAllAnnotations() {
+    let allAnnotations = [];
+    for (const key in localStorage) {
+        if (key.startsWith("progress_")) {
+            const progress = JSON.parse(localStorage.getItem(key));
+            allAnnotations.push(progress.annotations);
+        }
+    }
+    const blob = new Blob([JSON.stringify(allAnnotations, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "all_annotations.json";
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 // Initialize the page
@@ -207,7 +218,8 @@ async function init() {
     });
 
     // Event listeners
-    document.getElementById("admin-login-button").addEventListener("click", adminLogin);
+    document.getElementById("admin-login-submit").addEventListener("click", adminLogin);
+    document.getElementById("admin-download-button").addEventListener("click", downloadAllAnnotations);
     userSelect.addEventListener("change", onAnnotatorChange);
 }
 
