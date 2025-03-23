@@ -24,12 +24,21 @@ label {
     margin: 5px 0;
 }
 
-/* Container for Side-by-Side Layout */
+/* Main Container for Flex Layout */
 .container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
+}
+
+/* Row for Side-by-Side Layout */
+.row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 20px;
+    width: 100%; /* Take full width of the container */
 }
 
 /* Box Styling */
@@ -39,15 +48,19 @@ label {
     padding: 20px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     margin: 15px;
-    flex: 1 1 45%;  /* Adjusted to take half the width */
-    max-width: 45%; /* Ensures side-by-side layout */
     box-sizing: border-box;
 }
 
-/* Full-Width Box (for Control and Admin) */
+/* Dialogue and Translation Boxes (Side-by-Side) */
+.row .box {
+    flex: 1 1 45%; /* Make both boxes take equal space */
+    max-width: 45%; /* Ensure side-by-side layout */
+}
+
+/* Full-Width Box for Control and Admin */
 .full-width-box {
-    flex: 1 1 90%;  /* Take almost full width */
-    max-width: 90%; /* Ensures wide layout */
+    flex: 1 1 90%; /* Full width for control and dashboard */
+    max-width: 90%;
 }
 
 /* Dialogue Box Styling */
@@ -228,11 +241,6 @@ tr:hover {
     border-radius: 5px;
 }
 
-/* Admin Dashboard */
-#dashboard-table {
-    margin-top: 10px;
-}
-
 /* Hidden Element */
 .hidden {
     display: none;
@@ -244,7 +252,11 @@ tr:hover {
         flex-direction: column;
     }
 
-    .box {
+    .row {
+        flex-direction: column;
+    }
+
+    .box, .full-width-box {
         width: 100%;
         margin: 5px 0;
     }
