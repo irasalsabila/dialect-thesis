@@ -97,7 +97,7 @@ function displayDialogue() {
         translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
-        translateInput.required = true;
+        translateInput.required = true; // Make input required
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
@@ -117,14 +117,6 @@ function saveTranslation(index, value) {
     }
     annotations[currentRow][index] = value;
     saveAnnotations();
-}
-
-// Collect all translation inputs before saving
-function collectAllTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    inputs.forEach((input, index) => {
-        saveTranslation(index, input.value);
-    });
 }
 
 // Validate all translations are filled
@@ -164,7 +156,7 @@ function updateProgress() {
 
 // Move to next row
 function nextRow() {
-    collectAllTranslations();
+    collectAllTranslations();  // Collect all inputs before moving to the next row
     if (validateTranslations()) {
         currentRow++;
         if (currentRow >= totalRows) {
@@ -172,15 +164,6 @@ function nextRow() {
             alert("All annotations completed!");
         }
         displayDialogue();
-    }
-}
-
-// Save current progress without moving to the next row
-function saveCurrentProgress() {
-    collectAllTranslations();
-    if (validateTranslations()) {
-        saveAnnotations();
-        alert("Progress saved!");
     }
 }
 
@@ -227,6 +210,104 @@ function displayAdminDashboard() {
             <td><button class="view-btn" onclick="viewAnnotations('${annotator}')">View</button></td>
         </tr>`;
         tableBody.innerHTML += row;
+    });
+}
+
+// View annotations in a structured table format and enable download
+function viewAnnotations(annotator) {
+    const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
+    const annotationTable = document.getElementById("annotation-table");
+    const annotationHeader = document.getElementById("annotation-header");
+    const annotationBody = document.getElementById("annotation-body");
+    annotationHeader.innerHTML = "";
+    annotationBody.innerHTML = "";
+
+    const user = usersData.find(u => u[0] === annotator);
+    const dialect = user ? user[1] : "Unknown";
+
+    // Generate headers dynamically
+    const headers = ["annotator", "dialect", ...parsedData.headers];
+    let csvContent = headers.join(",") + "\n";
+
+    // Create header row
+    const headerRow = document.createElement("tr");
+    headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headerRow.appendChild(th);
+    });
+    annotationHeader.appendChild(headerRow);
+
+    // Create table rows and CSV content
+    Object.keys(data).forEach((rowIndex) => {
+        const row = data[rowIndex];
+        const tr = document.createElement("tr");
+
+        // Ensure annotation and dialect columns are filled
+        const rowData = [annotator, dialect];
+        
+        // Add annotation and dialect cells
+        const annotationCell = document.createElement("td");
+        annotationCell.textContent = annotator;
+        tr.appendChild(annotationCell);
+
+        const dialectCell = document.createElement("td");
+        dialectCell.textContent = dialect;
+        tr.appendChild(dialectCell);
+
+        // Add data from CSV columns
+        row.forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value || "-";
+            tr.appendChild(td);
+            rowData.push(value || "-");
+        });
+
+        annotationBody.appendChild(tr);
+        csvContent += rowData.join(",") + "\n";
+    });
+
+    // Add download button for CSV
+    const downloadBtn = document.getElementById("download-annotations");
+    downloadBtn.style.display = "inline-block";
+    downloadBtn.onclick = () => downloadCSV(csvContent, `${annotator}_annotations.csv`);
+
+    // Show annotation details
+    const annotationDetails = document.getElementById("annotation-details");
+    annotationDetails.style.display = "block";
+}
+
+
+// Download CSV function
+function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+}
+
+// Close the annotation details view
+function closeAnnotationDetails() {
+    const annotationDetails = document.getElementById("annotation-details");
+    annotationDetails.style.display = "none";
+}
+
+// Save current progress without moving to the next row
+function saveCurrentProgress() {
+    collectAllTranslations();  // Collect all inputs before saving
+    if (validateTranslations()) {
+        saveAnnotations();
+        alert("Progress saved!");
+    }
+}
+
+// Collect all translation inputs before saving
+function collectAllTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    inputs.forEach((input, index) => {
+        const value = input.value.trim();
+        saveTranslation(index, value);
     });
 }
 
