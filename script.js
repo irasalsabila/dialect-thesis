@@ -10,13 +10,20 @@ let currentRegion = "";
 
 // Load CSV data (async)
 async function loadCSV(file) {
-    const response = await fetch(file);
-    return await response.text();
+    try {
+        const response = await fetch(file);
+        if (!response.ok) throw new Error(`Failed to load ${file}`);
+        return await response.text();
+    } catch (error) {
+        console.error(error);
+        alert(`Error loading file: ${file}`);
+        return "";
+    }
 }
 
 // Parse CSV data
 function parseCSV(data) {
-    const rows = data.split('\n');
+    const rows = data.trim().split('\n');
     const headers = rows[0].split(',');
     const parsedRows = rows.slice(1).map(row => row.split(','));
     return { headers, rows: parsedRows };
@@ -54,8 +61,8 @@ function onUserChange() {
     if (user) {
         currentDialect = user[1];
         currentRegion = user[2];
-        document.getElementById("dialect").textContent = `Dialect: ${currentDialect}`;
-        document.getElementById("region").textContent = `Region: ${currentRegion}`;
+        document.getElementById("dialect").textContent = currentDialect;
+        document.getElementById("region").textContent = currentRegion;
     }
     loadAnnotations();
     displayDialogue();
@@ -63,8 +70,8 @@ function onUserChange() {
 
 // Display dialogue and input fields
 function displayDialogue() {
-    const dialogueBox = document.getElementById("original-dialogue");
-    const translateBox = document.getElementById("translate-dialogue");
+    const dialogueBox = document.getElementById("dialogue-content");
+    const translateBox = document.getElementById("translation-content");
     dialogueBox.innerHTML = "";
     translateBox.innerHTML = "";
 
@@ -117,7 +124,7 @@ function loadAnnotations() {
 // Update progress bar
 function updateProgress() {
     const progressBar = document.getElementById("progress-bar-fill");
-    const progressText = document.getElementById("progress-text");
+    const progressText = document.getElementById("progress");
     const progress = Math.min(currentRow / totalRows * 100, 100);
     progressBar.style.width = progress + "%";
     progressText.textContent = `${currentRow}/${totalRows}`;
@@ -133,27 +140,6 @@ function nextRow() {
     displayDialogue();
 }
 
-// Save all annotations to CSV
-function downloadAnnotations() {
-    let csvContent = "Annotator,Dialect,Region";
-    parsedData.headers.forEach(header => {
-        csvContent += `,${header}`;
-    });
-    csvContent += "\n";
-
-    Object.keys(annotations).forEach(row => {
-        const rowData = annotations[row].join(",");
-        csvContent += `${currentAnnotator},${currentDialect},${currentRegion},${rowData}\n`;
-    });
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'annotations.csv';
-    a.click();
-}
-
 // Reset all annotations
 function resetAnnotations() {
     localStorage.clear();
@@ -161,12 +147,14 @@ function resetAnnotations() {
     currentRow = 0;
     updateProgress();
     displayDialogue();
+    alert("All annotations have been reset!");
 }
 
 // Admin login
 function adminLogin() {
-    const username = document.getElementById("admin-username").value;
-    const password = document.getElementById("admin-password").value;
+    const username = prompt("Enter Admin Username:");
+    const password = prompt("Enter Admin Password:");
+
     if (username === "Ira" && password === "qwerty12345") {
         alert("Admin login successful!");
         displayAdminDashboard();
@@ -179,7 +167,7 @@ function adminLogin() {
 function displayAdminDashboard() {
     const dashboard = document.getElementById("admin-dashboard");
     dashboard.style.display = "block";
-    const tableBody = document.getElementById("dashboard-table-body");
+    const tableBody = document.getElementById("dashboard-body");
     tableBody.innerHTML = "";
 
     usersData.forEach(user => {
@@ -200,14 +188,14 @@ function displayAdminDashboard() {
 
 // View annotations
 function viewAnnotations(annotator) {
-    const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`));
+    const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
     alert(`Annotations for ${annotator}: ${JSON.stringify(data)}`);
 }
 
 // Event listeners
 document.getElementById("username").addEventListener("change", onUserChange);
-document.getElementById("next-button").addEventListener("click", nextRow);
-document.getElementById("reset-button").addEventListener("click", resetAnnotations);
+document.getElementById("next").addEventListener("click", nextRow);
+document.getElementById("reset").addEventListener("click", resetAnnotations);
 document.getElementById("admin-login").addEventListener("click", adminLogin);
 
 // Initialize on page load
