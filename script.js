@@ -191,13 +191,12 @@ function displayAdminDashboard() {
             <td>${annotator}</td>
             <td>${dialect}</td>
             <td>${progress}</td>
-            <td><button onclick="viewAnnotations('${annotator}')">View</button></td>
+            <td><button class="view-btn" onclick="viewAnnotations('${annotator}')">View</button></td>
         </tr>`;
         tableBody.innerHTML += row;
     });
 }
 
-// View annotations in a structured table format and enable download
 // View annotations in a structured table format and enable download
 function viewAnnotations(annotator) {
     const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
@@ -259,9 +258,10 @@ function downloadCSV(content, filename) {
     link.click();
 }
 
-// Close annotation details
+// Close the annotation details view
 function closeAnnotationDetails() {
-    document.getElementById("annotation-details").style.display = "none";
+    const annotationDetails = document.getElementById("annotation-details");
+    annotationDetails.style.display = "none";
 }
 
 // Event listeners

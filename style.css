@@ -106,6 +106,16 @@ button {
     background-color: #0056b3;
 }
 
+/* Download Button */
+#download-annotations {
+    background-color: #4CAF50;
+    margin: 10px 0;
+}
+
+#download-annotations:hover {
+    background-color: #45a049;
+}
+
 /* Progress Bar */
 .progress-bar {
     width: 100%;
@@ -129,7 +139,7 @@ table {
 
 th, td {
     padding: 10px;
-    text-align: left;
+    text-align: center;
     border: 1px solid #ddd;
 }
 
@@ -139,6 +149,29 @@ th {
 }
 
 tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Admin Dashboard Table */
+#dashboard-table, #annotation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#dashboard-table th, #dashboard-table td,
+#annotation-table th, #annotation-table td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#dashboard-table th, #annotation-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+#dashboard-table tr:hover, #annotation-table tr:hover {
     background-color: #f1f1f1;
 }
 
@@ -159,8 +192,28 @@ tr:hover {
     margin-top: 10px;
 }
 
+/* Annotation Details */
 #annotation-details {
     margin-top: 20px;
+}
+
+#annotation-details table {
+    width: 100%;
+}
+
+#annotation-details th, #annotation-details td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#annotation-details th {
+    background-color: #e2e2e2;
+    font-weight: bold;
+}
+
+#annotation-details tr:hover {
+    background-color: #f9f9f9;
 }
 
 .hidden {
@@ -184,8 +237,17 @@ tr:hover {
     }
 }
 
-/* Translation Label Styling */
-.translation-label {
-    margin: 5px 0;
-    font-weight: bold;
+/* View Button (Blue) */
+.view-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.view-btn:hover {
+    background-color: #0056b3;
 }
