@@ -35,37 +35,6 @@ function updateProgress(current, total) {
     progressText.textContent = `${Math.min(current + 1, total)}/${total}`;
 }
 
-// Display "All annotations finished" when done
-function displayFinishedMessage() {
-    const dialogueBox = document.getElementById("dialogue");
-    const translationBox = document.getElementById("translation");
-
-    dialogueBox.innerHTML = "<strong>All annotations finished</strong>";
-    translationBox.innerHTML = "<strong>All annotations finished</strong>";
-
-    updateProgress(totalRows, totalRows);
-}
-
-// Save progress for the current annotator
-function saveAnnotatorProgress() {
-    const progress = { currentRow, annotations };
-    localStorage.setItem(`progress_${annotator}`, JSON.stringify(progress));
-}
-
-// Load progress for the current annotator
-function loadAnnotatorProgress() {
-    const savedData = localStorage.getItem(`progress_${annotator}`);
-    if (savedData) {
-        const progress = JSON.parse(savedData);
-        currentRow = progress.currentRow || 0;
-        annotations = progress.annotations || {};
-    } else {
-        currentRow = 0;
-        annotations = {};
-    }
-    updateProgress(currentRow, totalRows);
-}
-
 // Display a single row of dialogue and translation input
 function displayRow(data, rowIndex) {
     const dialogueBox = document.getElementById("dialogue");
@@ -107,15 +76,11 @@ function displayRow(data, rowIndex) {
 // Save translations to localStorage
 function saveTranslations(data) {
     const inputs = document.querySelectorAll(".translation-input");
-
-    // Update annotations object with current inputs
     inputs.forEach(input => {
         annotations[input.id] = input.value;
     });
 
-    // Save progress in local storage
-    saveAnnotatorProgress();
-
+    localStorage.setItem(`annotations_${annotator}`, JSON.stringify(annotations));
     alert("Translations saved successfully!");
 }
 
@@ -125,102 +90,94 @@ function loadNextRow(data) {
         currentRow++;
         displayRow(data, currentRow);
         updateProgress(currentRow, totalRows);
-        saveAnnotatorProgress();
     } else {
         displayFinishedMessage();
     }
 }
 
-// Annotator selection logic
-async function onAnnotatorChange() {
-    annotator = document.getElementById("username").value;
-    if (!annotator) return;
+// Display finished message
+function displayFinishedMessage() {
+    const dialogueBox = document.getElementById("dialogue");
+    const translationBox = document.getElementById("translation");
 
-    const csvData = await loadCSV("data.csv");
-    const parsedData = parseCSV(csvData);
-    totalRows = parsedData.rows.length;
+    dialogueBox.innerHTML = "<strong>All annotations finished</strong>";
+    translationBox.innerHTML = "<strong>All annotations finished</strong>";
 
-    loadAnnotatorProgress();
-    displayRow(parsedData, currentRow);
-
-    // Event listeners for buttons
-    document.getElementById("save-button").addEventListener("click", () => saveTranslations(parsedData));
-    document.getElementById("next-button").addEventListener("click", () => loadNextRow(parsedData));
-
-    updateProgress(currentRow, totalRows);
+    updateProgress(totalRows, totalRows);
 }
 
-// Admin login toggle button handler
-document.getElementById("admin-login-button").addEventListener("click", () => {
-    const adminLogin = document.getElementById("admin-login");
-    adminLogin.style.display = adminLogin.style.display === "block" ? "none" : "block";
-});
-
-// Admin login with hashed password check
-async function adminLogin() {
+// Admin login submission
+document.getElementById("admin-login-submit").addEventListener("click", () => {
     const username = document.getElementById("admin-username").value;
     const password = document.getElementById("admin-password").value;
 
     if (username === "Ira" && password === "qwerty12345") {
-        isAdmin = true;
         alert("Admin login successful!");
+        isAdmin = true;
         document.getElementById("admin-login").style.display = "none";
         document.getElementById("admin-dashboard").style.display = "block";
         loadAdminDashboard();
     } else {
         alert("Invalid username or password!");
     }
-}
+});
 
-// Admin dashboard progress list
+// Admin login toggle
+document.getElementById("admin-login-button").addEventListener("click", () => {
+    const adminLogin = document.getElementById("admin-login");
+    adminLogin.style.display = adminLogin.style.display === "block" ? "none" : "block";
+});
+
+// Load Admin Dashboard
 function loadAdminDashboard() {
     const progressList = document.getElementById("progress-list");
-    progressList.innerHTML = "<h3>Annotator Progress:</h3>";
+    progressList.innerHTML = "";
 
     for (const key in localStorage) {
-        if (key.startsWith("progress_")) {
-            const annotatorName = key.replace("progress_", "");
-            const progress = JSON.parse(localStorage.getItem(key));
-            const completed = progress.currentRow + 1;
-            progressList.innerHTML += `${annotatorName} - ${Math.min(completed, totalRows)}/${totalRows}<br>`;
+        if (key.startsWith("annotations_")) {
+            const annotatorName = key.replace("annotations_", "");
+            const data = JSON.parse(localStorage.getItem(key));
+            const progressRow = document.createElement("tr");
+            progressRow.innerHTML = `
+                <td>${annotatorName}</td>
+                <td>${data.dialect || "N/A"}</td>
+                <td>${Object.keys(data).length}/${totalRows}</td>
+                <td><button class="details-button" onclick="viewDetails('${annotatorName}')">View</button></td>
+            `;
+            progressList.appendChild(progressRow);
         }
     }
 }
 
-// Admin download all annotations
-function downloadAllAnnotations() {
-    let allAnnotations = [];
-    for (const key in localStorage) {
-        if (key.startsWith("progress_")) {
-            const progress = JSON.parse(localStorage.getItem(key));
-            allAnnotations.push(progress.annotations);
-        }
+// View annotation details
+function viewDetails(annotatorName) {
+    const annotationDetails = document.getElementById("annotation-details");
+    const annotationBody = document.getElementById("annotation-body");
+    annotationDetails.style.display = "block";
+
+    const data = JSON.parse(localStorage.getItem(`annotations_${annotatorName}`));
+    annotationBody.innerHTML = "";
+    for (const [key, value] of Object.entries(data)) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${annotatorName}</td><td>${data.dialect}</td><td>${key}</td><td>${value}</td>`;
+        annotationBody.appendChild(row);
     }
-    const blob = new Blob([JSON.stringify(allAnnotations, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "all_annotations.json";
-    a.click();
-    URL.revokeObjectURL(url);
 }
 
 // Initialize the page
 async function init() {
-    const users = ["Annotator1", "Annotator2", "Annotator3", "Ira"];
+    const csvData = await loadCSV("data.csv");
+    const parsedData = parseCSV(csvData);
+    totalRows = parsedData.rows.length;
 
-    const userSelect = document.getElementById("username");
-    users.forEach(user => {
-        let option = document.createElement("option");
-        option.value = user;
-        option.textContent = user;
-        userSelect.appendChild(option);
+    document.getElementById("username").addEventListener("change", () => {
+        annotator = document.getElementById("username").value;
+        currentRow = 0;
+        displayRow(parsedData, currentRow);
     });
 
-    // Event listeners
-    document.getElementById("admin-login-submit").addEventListener("click", adminLogin);
-    document.getElementById("admin-download-button").addEventListener("click", downloadAllAnnotations);
-    userSelect.addEventListener("change", onAnnotatorChange);
+    document.getElementById("save-button").addEventListener("click", () => saveTranslations(parsedData));
+    document.getElementById("next-button").addEventListener("click", () => loadNextRow(parsedData));
 }
 
 document.addEventListener("DOMContentLoaded", init);

@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annotation Server</title>
+    <title>Dialect Annotation Tool</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Main Annotation Interface -->
+    <div class="main-container">
         <!-- Left Box: Original Dialogue -->
         <div class="box" id="post-box">
             <h2>Original Dialogue</h2>
-            <div id="dialogue">
-                <!-- Dialogue will be populated here -->
+            <div id="dialogue" class="dialogue-box">
+                <!-- Original dialogue text will be populated here -->
             </div>
         </div>
 
-        <!-- Middle Box: Translated/Annotated Dialogue -->
+        <!-- Middle Box: Translation Input -->
         <div class="box" id="get-box">
             <h2>Translate to Your Own Dialect</h2>
-            <div id="translation">
-                <!-- Translation input will be populated here -->
+            <div id="translation" class="translation-box">
+                <!-- Translation input fields will be populated here -->
             </div>
         </div>
 
-        <!-- Right Box: Dropdowns, Progress Bar, and Buttons -->
+        <!-- Right Box: User Info and Controls -->
         <div class="box" id="info-box">
-            <!-- Annotator Selection -->
-            <div>
+            <!-- User Info and Settings -->
+            <div class="info-section">
                 <label for="username">Username:</label>
                 <select id="username">
                     <option value="">Select User</option>
                 </select>
             </div>
-
-            <!-- Dialect Selection -->
-            <div>
+            <div class="info-section">
                 <label for="dialect">Dialect:</label>
                 <select id="dialect">
                     <option value="">Select Dialect</option>
@@ -46,50 +45,77 @@
             </div>
 
             <!-- Progress Bar -->
-            <div id="progress">
+            <div class="info-section">
                 <label>Progress:</label>
                 <progress id="progress-bar" value="0" max="100"></progress>
                 <span id="progress-text">0/0</span>
             </div>
 
             <!-- Action Buttons -->
-            <div id="actions">
-                <button id="save-button">Save Translations</button>
-                <button id="next-button">Next</button>
+            <div class="button-group">
+                <button id="save-button" class="action-button">Save</button>
+                <button id="next-button" class="action-button">Next</button>
             </div>
 
             <!-- Admin Login Button -->
-            <div id="admin-login-container">
-                <button id="admin-login-button">Admin Login</button>
-            </div>
-
-            <!-- Annotation Summary (Shown After Completion) -->
-            <div id="summary-box" style="display: none;">
-                <h2>Annotation Summary</h2>
-                <div id="summary"></div>
-                <button id="download-button">Download Annotations</button>
+            <div id="admin-login-container" class="info-section">
+                <button id="admin-login-button" class="admin-button">Admin Login</button>
             </div>
         </div>
     </div>
 
     <!-- Admin Login Section -->
-    <div class="container" id="admin-login" style="display: none;">
+    <div class="admin-login-container" id="admin-login" style="display: none;">
         <h2>Admin Access</h2>
         <label for="admin-username">Username:</label>
         <input type="text" id="admin-username" placeholder="Username">
         <label for="admin-password">Password:</label>
         <input type="password" id="admin-password" placeholder="Password">
-        <button id="admin-login-submit">Login</button>
+        <button id="admin-login-submit" class="admin-button">Login</button>
     </div>
 
     <!-- Admin Dashboard -->
-    <div class="container" id="admin-dashboard" style="display: none;">
+    <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
         <h2>Admin Dashboard</h2>
-        <div id="progress-list">
-            <h3>Annotator Progress:</h3>
-            <!-- Annotator progress will be displayed here -->
+        <!-- Annotator Progress Table -->
+        <table id="progress-table">
+            <thead>
+                <tr>
+                    <th>Annotator</th>
+                    <th>Dialect</th>
+                    <th>Progress</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="progress-list">
+                <!-- Progress rows will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <!-- Detailed Annotations Table -->
+        <div class="annotation-details" id="annotation-details" style="display: none;">
+            <h3>Annotation Details</h3>
+            <table id="annotation-table">
+                <thead>
+                    <tr>
+                        <th>Annotator</th>
+                        <th>Dialect</th>
+                        <th>Speaker 1</th>
+                        <th>Speaker 2</th>
+                        <th>Speaker 1</th>
+                        <th>Speaker 2</th>
+                    </tr>
+                </thead>
+                <tbody id="annotation-body">
+                    <!-- Annotation rows will be dynamically added here -->
+                </tbody>
+            </table>
         </div>
-        <button id="admin-download-button">Download All Annotations</button>
+
+        <!-- Admin Dashboard Actions -->
+        <div class="admin-actions">
+            <button id="admin-download-button" class="download-button">Download All Annotations</button>
+        </div>
     </div>
 
     <!-- JavaScript -->
