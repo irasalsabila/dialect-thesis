@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialect Annotation Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+
+        <!-- Original Dialogue Box -->
+        <div class="box" id="original-box">
+            <h2>Original Dialogue</h2>
+            <div id="original-dialogue" class="dialogue-box"></div>
+        </div>
+
+        <!-- Translation Box -->
+        <div class="box" id="translation-box">
+            <h2>Translate to Your Own Dialect</h2>
+            <div id="translation-dialogue" class="dialogue-box"></div>
+        </div>
+
+        <!-- User Info and Controls Box -->
+        <div class="box" id="info-box">
+            <label for="username">Username:</label>
+            <select id="username"></select>
+            <label for="dialect">Dialect:</label>
+            <div id="dialect-display" class="info-display"></div>
+            <label for="region">Region:</label>
+            <div id="region-display" class="info-display"></div>
+            <label for="progress">Progress:</label>
+            <div id="progress-display" class="info-display">0/0</div>
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="button-group">
+                <button id="save" class="btn save">Save</button>
+                <button id="next" class="btn next">Next</button>
+                <button id="admin-login" class="btn admin">Admin Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Access -->
+    <div class="admin-login" id="admin-login-box">
+        <h3>Admin Access</h3>
+        <label for="admin-username">Username:</label>
+        <input type="text" id="admin-username" placeholder="Username">
+        <label for="admin-password">Password:</label>
+        <input type="password" id="admin-password" placeholder="Password">
+        <button onclick="adminLogin()" class="btn login">Login</button>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+        <h3>Admin Dashboard</h3>
+        <table id="admin-table">
+            <thead>
+                <tr>
+                    <th>Annotator</th>
+                    <th>Dialect</th>
+                    <th>Progress</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="progress-list"></tbody>
+        </table>
+        <div class="admin-buttons">
+            <button class="btn download" onclick="downloadAllAnnotations()">Download All Annotations</button>
+            <button class="btn reset" onclick="resetAnnotations()">Reset All Annotations</button>
+        </div>
+    </div>
+
+    <!-- Annotation Details -->
+    <div class="annotation-details" id="annotation-details" style="display: none;">
+        <h3>Annotation Details</h3>
+        <table id="annotation-table">
+            <thead id="annotation-header"></thead>
+            <tbody id="annotation-body"></tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
