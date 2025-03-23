@@ -7,27 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Main Annotation Interface -->
-    <div class="main-container">
-        <!-- Left Box: Original Dialogue -->
-        <div class="box" id="post-box">
+    <div class="container">
+        <!-- Original Dialogue Box -->
+        <div class="box" id="dialogue-box">
             <h2>Original Dialogue</h2>
-            <div id="dialogue" class="dialogue-box">
-                <!-- Original dialogue text will be populated here -->
-            </div>
+            <div id="dialogue" class="dialogue"></div>
         </div>
 
-        <!-- Middle Box: Translation Input -->
-        <div class="box" id="get-box">
+        <!-- Translation Box -->
+        <div class="box" id="translation-box">
             <h2>Translate to Your Own Dialect</h2>
-            <div id="translation" class="translation-box">
-                <!-- Translation input fields will be populated here -->
-            </div>
+            <div id="translation" class="translation"></div>
         </div>
 
-        <!-- Right Box: User Info and Controls -->
+        <!-- User Info and Controls -->
         <div class="box" id="info-box">
-            <!-- User Info and Settings -->
             <div class="info-section">
                 <label for="username">Username:</label>
                 <select id="username">
@@ -35,83 +29,69 @@
                 </select>
                 <p>Dialect: <span id="dialect-info">-</span></p>
                 <p>Region: <span id="region-info">-</span></p>
-            </div>            
-
-            <!-- Progress Bar -->
-            <div class="info-section">
-                <label>Progress:</label>
+                <p>Progress: <span id="progress-text">0/0</span></p>
                 <progress id="progress-bar" value="0" max="100"></progress>
-                <span id="progress-text">0/0</span>
             </div>
-
-            <!-- Action Buttons -->
             <div class="button-group">
-                <button id="save-button" class="action-button">Save</button>
-                <button id="next-button" class="action-button">Next</button>
-            </div>
-
-            <!-- Admin Login Button -->
-            <div id="admin-login-container" class="info-section">
-                <button id="admin-login-button" class="admin-button">Admin Login</button>
+                <button id="save-button" class="btn save">Save</button>
+                <button id="next-button" class="btn next">Next</button>
+                <button id="admin-login-button" class="btn admin">Admin Login</button>
             </div>
         </div>
-    </div>
 
-    <!-- Admin Login Section -->
-    <div class="admin-login-container" id="admin-login" style="display: none;">
-        <h2>Admin Access</h2>
-        <label for="admin-username">Username:</label>
-        <input type="text" id="admin-username" placeholder="Username">
-        <label for="admin-password">Password:</label>
-        <input type="password" id="admin-password" placeholder="Password">
-        <button id="admin-login-submit" class="admin-button">Login</button>
-    </div>
+        <!-- Admin Login -->
+        <div class="admin-login" id="admin-login" style="display: none;">
+            <h3>Admin Access</h3>
+            <label for="admin-username">Username:</label>
+            <input type="text" id="admin-username" placeholder="Username">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" placeholder="Password">
+            <button id="admin-login-submit" class="btn admin">Login</button>
+        </div>
 
-    <!-- Admin Dashboard -->
-    <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
-        <h2>Admin Dashboard</h2>
-        <!-- Annotator Progress Table -->
-        <table id="progress-table">
-            <thead>
-                <tr>
-                    <th>Annotator</th>
-                    <th>Dialect</th>
-                    <th>Progress</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody id="progress-list">
-                <!-- Progress rows will be dynamically added here -->
-            </tbody>
-        </table>
+        <!-- Admin Login -->
+        <div class="admin-login" id="admin-login" style="display: none;">
+            <h3>Admin Access</h3>
+            <label for="admin-username">Username:</label>
+            <input type="text" id="admin-username" placeholder="Username">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" placeholder="Password">
+            <button id="admin-login-submit" class="btn admin">Login</button>
+        </div>
 
-        <!-- Detailed Annotations Table -->
-        <div class="annotation-details" id="annotation-details" style="display: none;">
-            <h3>Annotation Details</h3>
-            <table id="annotation-table">
+        <!-- Admin Dashboard -->
+        <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+            <h3>Admin Dashboard</h3>
+            <table id="admin-table">
                 <thead>
                     <tr>
                         <th>Annotator</th>
                         <th>Dialect</th>
-                        <th>Speaker 1</th>
-                        <th>Speaker 2</th>
-                        <th>Speaker 1</th>
-                        <th>Speaker 2</th>
+                        <th>Progress</th>
+                        <th>Details</th>
                     </tr>
+                </thead>
+                <tbody id="progress-list">
+                    <!-- Progress rows will be dynamically added here -->
+                </tbody>
+            </table>
+            <button class="btn download" onclick="downloadAllAnnotations()">Download All Annotations</button>
+        </div>
+
+        <!-- Annotation Details Table -->
+        <div class="annotation-details" id="annotation-details" style="display: none;">
+            <h3>Annotation Details</h3>
+            <table id="annotation-table">
+                <thead>
+                    <!-- Dynamic headers will be loaded here -->
                 </thead>
                 <tbody id="annotation-body">
                     <!-- Annotation rows will be dynamically added here -->
                 </tbody>
             </table>
         </div>
-
-        <!-- Admin Dashboard Actions -->
-        <div class="admin-actions">
-            <button id="admin-download-button" class="download-button">Download All Annotations</button>
-        </div>
     </div>
 
-    <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>

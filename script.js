@@ -185,18 +185,38 @@ function loadAdminDashboard() {
 }
 
 // View annotation details
-function viewDetails(annotatorName) {
+async function viewDetails(annotatorName) {
     const annotationDetails = document.getElementById("annotation-details");
     const annotationBody = document.getElementById("annotation-body");
+    const annotationTable = document.getElementById("annotation-table");
     annotationDetails.style.display = "block";
 
-    const data = JSON.parse(localStorage.getItem(`annotations_${annotatorName}`));
+    // Load the CSV file to get the header columns dynamically
+    const csvData = await loadCSV("data.csv");
+    const parsedData = parseCSV(csvData);
+
+    // Create table headers dynamically based on CSV headers
+    const tableHead = annotationTable.querySelector("thead");
+    tableHead.innerHTML = `
+        <tr>
+            <th>Annotator</th>
+            <th>Dialect</th>
+            ${parsedData.headers.map(header => `<th>${header}</th>`).join("")}
+        </tr>
+    `;
+
+    // Load annotation data from localStorage
+    const data = JSON.parse(localStorage.getItem(`annotations_${annotatorName}`)) || {};
     annotationBody.innerHTML = "";
-    for (const [key, value] of Object.entries(data)) {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${annotatorName}</td><td>${data.dialect || "N/A"}</td><td>${key}</td><td>${value}</td>`;
-        annotationBody.appendChild(row);
-    }
+    const row = document.createElement("tr");
+
+    // Fill the row with annotation data
+    row.innerHTML = `
+        <td>${annotatorName}</td>
+        <td>${data.dialect || "N/A"}</td>
+        ${parsedData.headers.map(header => `<td>${data[header] || ""}</td>`).join("")}
+    `;
+    annotationBody.appendChild(row);
 }
 
 // Initialize the page
