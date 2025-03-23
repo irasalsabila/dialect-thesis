@@ -85,16 +85,25 @@ function displayDialogue() {
     const row = parsedData.rows[currentRow];
     parsedData.headers.forEach((header, index) => {
         const dialogue = row[index];
+
+        // Original Dialogue Display
+        const dialogueElement = document.createElement("p");
+        dialogueElement.innerHTML = `<strong>${header}:</strong> ${dialogue}`;
+        dialogueBox.appendChild(dialogueElement);
+
+        // Translation Box with Speaker Name
+        const translateLabel = document.createElement("label");
+        translateLabel.textContent = `${header}:`;
+        translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
+        translateInput.required = true;
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
-        const dialogueLine = `<p><strong>${header}:</strong> ${dialogue}</p>`;
-        dialogueBox.innerHTML += dialogueLine;
-        const translationLine = `<p><strong>${header}:</strong></p>`;
-        translateBox.innerHTML += translationLine;
+        // Add the label and input to the translation box
+        translateBox.appendChild(translateLabel);
         translateBox.appendChild(translateInput);
     });
 
@@ -108,6 +117,26 @@ function saveTranslation(index, value) {
     }
     annotations[currentRow][index] = value;
     saveAnnotations();
+}
+
+// Collect all translation inputs before saving
+function collectAllTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    inputs.forEach((input, index) => {
+        saveTranslation(index, input.value);
+    });
+}
+
+// Validate all translations are filled
+function validateTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    for (let input of inputs) {
+        if (input.value.trim() === "") {
+            alert("Please fill all translation fields before saving or moving to the next row.");
+            return false;
+        }
+    }
+    return true;
 }
 
 // Save annotations to localStorage
@@ -124,33 +153,13 @@ function loadAnnotations() {
     displayDialogue();
 }
 
-// Collect all translations before saving
-function collectAllTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    inputs.forEach((input, index) => {
-        saveTranslation(index, input.value);
-    });
-}
-
-// Save current progress without moving to the next row
-function saveCurrentProgress() {
-    collectAllTranslations();
-    if (validateTranslations()) {
-        saveAnnotations();
-        alert("Progress saved!");
-    }
-}
-
-// Validate all translations are filled
-function validateTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    for (let input of inputs) {
-        if (input.value.trim() === "") {
-            alert("Please fill all translation fields before saving or moving to the next row.");
-            return false;
-        }
-    }
-    return true;
+// Update progress bar
+function updateProgress() {
+    const progressBar = document.getElementById("progress-bar-fill");
+    const progressText = document.getElementById("progress");
+    const progress = Math.min(currentRow / totalRows * 100, 100);
+    progressBar.style.width = progress + "%";
+    progressText.textContent = `${currentRow}/${totalRows}`;
 }
 
 // Move to next row
@@ -163,6 +172,15 @@ function nextRow() {
             alert("All annotations completed!");
         }
         displayDialogue();
+    }
+}
+
+// Save current progress without moving to the next row
+function saveCurrentProgress() {
+    collectAllTranslations();
+    if (validateTranslations()) {
+        saveAnnotations();
+        alert("Progress saved!");
     }
 }
 
@@ -206,34 +224,16 @@ function displayAdminDashboard() {
             <td>${annotator}</td>
             <td>${dialect}</td>
             <td>${progress}</td>
-            <td><button class="btn view-btn" onclick="viewAnnotations('${annotator}')">View</button></td>
+            <td><button class="view-btn" onclick="viewAnnotations('${annotator}')">View</button></td>
         </tr>`;
         tableBody.innerHTML += row;
     });
 }
 
-// View annotations
-function viewAnnotations(annotator) {
-    const data = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
-    const detailsTable = document.getElementById("annotation-body");
-    detailsTable.innerHTML = "";
-
-    Object.keys(data).forEach(row => {
-        const rowData = data[row];
-        const rowHTML = `<tr><td>${annotator}</td><td>${currentDialect}</td>${rowData.map(value => `<td>${value || '-'}</td>`).join('')}</tr>`;
-        detailsTable.innerHTML += rowHTML;
-    });
-}
-
-// Close annotation details
-function closeAnnotationDetails() {
-    document.getElementById("annotation-details").style.display = "none";
-}
-
 // Event listeners
 document.getElementById("username").addEventListener("change", onUserChange);
-document.getElementById("save").addEventListener("click", saveCurrentProgress);
 document.getElementById("next").addEventListener("click", nextRow);
+document.getElementById("save").addEventListener("click", saveCurrentProgress);
 document.getElementById("reset").addEventListener("click", resetAnnotations);
 document.getElementById("admin-login").addEventListener("click", adminLogin);
 
