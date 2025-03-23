@@ -20,9 +20,10 @@ async function adminLogin() {
     const password = document.getElementById("admin-password").value;
     const hashedPassword = await hashPassword(password);
 
+    // Predefined hashed password for "qwerty12345"
     const validHashedPassword = "8cb2237d0679ca88db6464eac60da96345513964";
 
-    if (username === "ira" && hashedPassword === validHashedPassword) {
+    if (username === "Ira" && hashedPassword === validHashedPassword) {
         isAdmin = true;
         alert("Admin login successful!");
         document.getElementById("admin-login").style.display = "none";
@@ -195,7 +196,7 @@ function loadAdminDashboard() {
 
 // Initialize the page
 async function init() {
-    const users = ["Annotator1", "Annotator2", "Annotator3"];
+    const users = ["Annotator1", "Annotator2", "Annotator3", "Ira"];
 
     const userSelect = document.getElementById("username");
     users.forEach(user => {
