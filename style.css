@@ -34,14 +34,16 @@ label {
 /* Box Styling */
 .box {
     background-color: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 10px;
-    flex: 1 1 30%;
-    max-width: 400px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    margin: 15px;
+    flex: 1 1 100%; /* Full width for better alignment */
+    max-width: 100%; /* Ensure the box stretches to the full width */
+    box-sizing: border-box;
 }
 
+/* Dialogue Box Styling */
 .dialogue-box {
     background-color: #f0f0f0;
     border-radius: 5px;
@@ -98,11 +100,13 @@ button {
 }
 
 /* Admin Login Button (Blue) */
-#admin-login {
+#admin-login,
+.view-btn {
     background-color: #007BFF;
 }
 
-#admin-login:hover {
+#admin-login:hover,
+.view-btn:hover {
     background-color: #0056b3;
 }
 
@@ -135,6 +139,7 @@ button {
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 10px;
 }
 
 th, td {
@@ -175,6 +180,35 @@ tr:hover {
     background-color: #f1f1f1;
 }
 
+/* Annotation Details */
+#annotation-details {
+    margin-top: 20px;
+    width: 100%; /* Full width */
+}
+
+#annotation-details table {
+    width: 100%;
+    table-layout: fixed; /* Even column distribution */
+}
+
+#annotation-details th, #annotation-details td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#annotation-details th {
+    background-color: #e2e2e2;
+    font-weight: bold;
+}
+
+#annotation-details tr:hover {
+    background-color: #f9f9f9;
+}
+
 /* Admin Login Form */
 #admin-access {
     margin-top: 20px;
@@ -192,30 +226,7 @@ tr:hover {
     margin-top: 10px;
 }
 
-/* Annotation Details */
-#annotation-details {
-    margin-top: 20px;
-}
-
-#annotation-details table {
-    width: 100%;
-}
-
-#annotation-details th, #annotation-details td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-}
-
-#annotation-details th {
-    background-color: #e2e2e2;
-    font-weight: bold;
-}
-
-#annotation-details tr:hover {
-    background-color: #f9f9f9;
-}
-
+/* Hidden Element */
 .hidden {
     display: none;
 }
@@ -235,19 +246,4 @@ tr:hover {
         width: 100%;
         margin: 5px 0;
     }
-}
-
-/* View Button (Blue) */
-.view-btn {
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    margin: 5px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.view-btn:hover {
-    background-color: #0056b3;
 }

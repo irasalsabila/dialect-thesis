@@ -209,8 +209,8 @@ function viewAnnotations(annotator) {
     const user = usersData.find(u => u[0] === annotator);
     const dialect = user ? user[1] : "Unknown";
 
-    // Dynamically generate headers from data.csv
-    const headers = ["annotation", "dialect", ...parsedData.headers];
+    // Generate headers dynamically
+    const headers = ["annotator", "dialect", ...parsedData.headers];
     let csvContent = headers.join(",") + "\n";
 
     // Create header row
@@ -226,8 +226,20 @@ function viewAnnotations(annotator) {
     Object.keys(data).forEach((rowIndex) => {
         const row = data[rowIndex];
         const tr = document.createElement("tr");
-        const rowData = [annotator, dialect];
 
+        // Ensure annotation and dialect columns are filled
+        const rowData = [annotator, dialect];
+        
+        // Add annotation and dialect cells
+        const annotationCell = document.createElement("td");
+        annotationCell.textContent = annotator;
+        tr.appendChild(annotationCell);
+
+        const dialectCell = document.createElement("td");
+        dialectCell.textContent = dialect;
+        tr.appendChild(dialectCell);
+
+        // Add data from CSV columns
         row.forEach((value) => {
             const td = document.createElement("td");
             td.textContent = value || "-";
@@ -248,6 +260,7 @@ function viewAnnotations(annotator) {
     const annotationDetails = document.getElementById("annotation-details");
     annotationDetails.style.display = "block";
 }
+
 
 // Download CSV function
 function downloadCSV(content, filename) {
