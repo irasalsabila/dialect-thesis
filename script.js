@@ -218,7 +218,7 @@ function viewAnnotations(annotator) {
     const user = usersData.find(u => u[0] === annotator);
     const dialect = user ? user[1] : "Unknown";
 
-    // Generate headers dynamically
+    // Generate headers dynamically with index
     const headers = ["index", "annotator", "dialect", ...parsedData.headers];
     let csvContent = headers.join(",") + "\n";
 
@@ -232,16 +232,15 @@ function viewAnnotations(annotator) {
     annotationHeader.appendChild(headerRow);
 
     // Create table rows and CSV content
-    Object.keys(data).forEach((rowIndex) => {
+    Object.keys(data).forEach((rowIndex, index) => {
         const row = data[rowIndex];
         const tr = document.createElement("tr");
 
-        // Add index cell
+        // Add index, annotation, and dialect cells
         const indexCell = document.createElement("td");
-        indexCell.textContent = rowIndex;
+        indexCell.textContent = index + 1;
         tr.appendChild(indexCell);
 
-        // Add annotation and dialect cells
         const annotationCell = document.createElement("td");
         annotationCell.textContent = annotator;
         tr.appendChild(annotationCell);
@@ -255,11 +254,13 @@ function viewAnnotations(annotator) {
             const td = document.createElement("td");
             td.textContent = value || "-";
             tr.appendChild(td);
-            csvContent += value ? `${value},` : "-,";
         });
 
         annotationBody.appendChild(tr);
-        csvContent += "\n";
+        
+        // Create a CSV row
+        const csvRow = [index + 1, annotator, dialect, ...row];
+        csvContent += csvRow.join(",") + "\n";
     });
 
     // Add download button for CSV
@@ -271,7 +272,6 @@ function viewAnnotations(annotator) {
     const annotationDetails = document.getElementById("annotation-details");
     annotationDetails.style.display = "block";
 }
-
 
 // Download CSV function
 function downloadCSV(content, filename) {
