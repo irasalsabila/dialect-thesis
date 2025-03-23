@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotation Server</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Box: Original Dialogue (POST) -->
+        <div class="box" id="post-box">
+            <h2>Original Dialogue</h2>
+            <div id="dialogue">
+                <!-- Dialogue will be populated here -->
+            </div>
+        </div>
+
+        <!-- Middle Box: Translated/Annotated Dialogue (GET) -->
+        <div class="box" id="get-box">
+            <h2>Translate to Your Own Dialect</h2>
+            <div id="translation">
+                <!-- Translation input will be populated here -->
+            </div>
+        </div>
+
+        <!-- Right Box: Dropdowns and Progress Bar -->
+        <div class="box" id="info-box">
+            <div>
+                <label for="username">Username:</label>
+                <select id="username">
+                    <option value="">Select User</option>
+                </select>
+            </div>
+            <div>
+                <label for="dialect">Dialect:</label>
+                <select id="dialect">
+                    <option value="">Select Dialect</option>
+                </select>
+            </div>
+            <div id="progress">
+                <label>Progress:</label>
+                <progress id="progress-bar" value="0" max="100"></progress>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
