@@ -144,8 +144,17 @@ function updateProgress() {
     progressText.textContent = `${currentRow}/${totalRows}`;
 }
 
+// Collect all translations from input fields
+function collectAllTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    inputs.forEach((input, index) => {
+        saveTranslation(index, input.value);
+    });
+}
+
 // Move to next row
 function nextRow() {
+    collectAllTranslations();  // Collect all inputs before moving to the next row
     if (validateTranslations()) {
         currentRow++;
         if (currentRow >= totalRows) {
@@ -284,6 +293,7 @@ function closeAnnotationDetails() {
 
 // Save current progress without moving to the next row
 function saveCurrentProgress() {
+    collectAllTranslations();  // Collect all inputs before saving
     if (validateTranslations()) {
         saveAnnotations();
         alert("Progress saved!");
