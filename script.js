@@ -85,15 +85,25 @@ function displayDialogue() {
     const row = parsedData.rows[currentRow];
     parsedData.headers.forEach((header, index) => {
         const dialogue = row[index];
+
+        // Original Dialogue Display
+        const dialogueElement = document.createElement("p");
+        dialogueElement.innerHTML = `<strong>${header}:</strong> ${dialogue}`;
+        dialogueBox.appendChild(dialogueElement);
+
+        // Translation Box with Speaker Name
+        const translateLabel = document.createElement("label");
+        translateLabel.textContent = `${header}:`;
+        translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
+        translateInput.required = true; // Make input required
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
-        translateInput.required = true; // Make input required
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
-        dialogueBox.innerHTML += `<p><strong>${header}:</strong> ${dialogue}</p>`;
-        translateBox.innerHTML += `<p><strong>${header}:</strong></p>`;
+        // Add the label and input to the translation box
+        translateBox.appendChild(translateLabel);
         translateBox.appendChild(translateInput);
     });
 
@@ -144,17 +154,8 @@ function updateProgress() {
     progressText.textContent = `${currentRow}/${totalRows}`;
 }
 
-// Collect all translations from input fields
-function collectAllTranslations() {
-    const inputs = document.querySelectorAll("#translation-content input");
-    inputs.forEach((input, index) => {
-        saveTranslation(index, input.value);
-    });
-}
-
 // Move to next row
 function nextRow() {
-    collectAllTranslations();  // Collect all inputs before moving to the next row
     if (validateTranslations()) {
         currentRow++;
         if (currentRow >= totalRows) {
@@ -293,7 +294,6 @@ function closeAnnotationDetails() {
 
 // Save current progress without moving to the next row
 function saveCurrentProgress() {
-    collectAllTranslations();  // Collect all inputs before saving
     if (validateTranslations()) {
         saveAnnotations();
         alert("Progress saved!");
