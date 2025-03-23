@@ -98,6 +98,7 @@ function displayDialogue() {
         const translateInput = document.createElement("input");
         translateInput.type = "text";
         translateInput.placeholder = "Translate to your dialect";
+        translateInput.required = true;  // Make the input field required
         translateInput.value = annotations[currentRow]?.[index] || "";
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
@@ -143,6 +144,7 @@ function updateProgress() {
 
 // Move to next row
 function nextRow() {
+    if (!validateTranslations()) return;
     currentRow++;
     if (currentRow >= totalRows) {
         currentRow = totalRows;
@@ -279,9 +281,21 @@ function closeAnnotationDetails() {
 
 // Save current progress without moving to the next row
 function saveCurrentProgress() {
-    // Save current row's annotations
+    if (!validateTranslations()) return;
     saveAnnotations();
     alert("Progress saved!");
+}
+
+// Validate all translation inputs are filled
+function validateTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    for (let input of inputs) {
+        if (input.value.trim() === "") {
+            alert("Please fill all translation fields before proceeding.");
+            return false;
+        }
+    }
+    return true;
 }
 
 // Event listeners
