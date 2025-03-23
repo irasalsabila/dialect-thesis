@@ -145,7 +145,7 @@ document.getElementById("admin-login-submit").addEventListener("click", () => {
     const username = document.getElementById("admin-username").value;
     const password = document.getElementById("admin-password").value;
 
-    if (username === "ira" && password === "1234") {
+    if (username === "Ira" && password === "qwerty12345") {
         alert("Admin login successful!");
         isAdmin = true;
         document.getElementById("admin-login").style.display = "none";
@@ -172,14 +172,30 @@ function loadAdminDashboard() {
             const annotatorName = key.replace("annotations_", "");
             const data = JSON.parse(localStorage.getItem(key));
             const progressRow = document.createElement("tr");
+            const progressValue = Object.keys(data).length / 8;
             progressRow.innerHTML = `
                 <td>${annotatorName}</td>
                 <td>${data.dialect || "N/A"}</td>
-                <td>${Object.keys(data).length / 8}/2</td>
+                <td>${Math.floor(progressValue)}/2</td>
                 <td><button class="details-button" onclick="viewDetails('${annotatorName}')">View</button></td>
             `;
             progressList.appendChild(progressRow);
         }
+    }
+}
+
+// View annotation details
+function viewDetails(annotatorName) {
+    const annotationDetails = document.getElementById("annotation-details");
+    const annotationBody = document.getElementById("annotation-body");
+    annotationDetails.style.display = "block";
+
+    const data = JSON.parse(localStorage.getItem(`annotations_${annotatorName}`));
+    annotationBody.innerHTML = "";
+    for (const [key, value] of Object.entries(data)) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${annotatorName}</td><td>${data.dialect || "N/A"}</td><td>${key}</td><td>${value}</td>`;
+        annotationBody.appendChild(row);
     }
 }
 
@@ -194,9 +210,14 @@ async function init() {
     document.getElementById("username").addEventListener("change", () => {
         annotator = document.getElementById("username").value;
         updateUserInfo(annotator);
-        currentRow = 0;
+
         annotations = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
-        displayRow(parsedData, currentRow);
+        if (Object.keys(annotations).length >= totalRows * 8) {
+            displayFinishedMessage();
+        } else {
+            currentRow = 0;
+            displayRow(parsedData, currentRow);
+        }
     });
 
     document.getElementById("save-button").addEventListener("click", saveTranslations);
