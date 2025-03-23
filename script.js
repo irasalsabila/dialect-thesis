@@ -4,6 +4,7 @@ let totalRows = 0;
 let annotator = "";
 let annotations = {};
 let isAdmin = false;
+let users = {};
 
 // Utility function to load CSV data
 async function loadCSV(url) {
@@ -25,6 +26,33 @@ function parseCSV(data) {
     return { headers, rows };
 }
 
+// Load users from users.csv and populate the dropdown
+async function loadUsers() {
+    const csvData = await loadCSV("users.csv");
+    const parsedData = parseCSV(csvData);
+
+    parsedData.rows.forEach(row => {
+        const username = row[0];
+        const dialect = row[1];
+        const region = row[2];
+        users[username] = { dialect, region };
+
+        const usernameSelect = document.getElementById("username");
+        const option = document.createElement("option");
+        option.value = username;
+        option.textContent = username;
+        usernameSelect.appendChild(option);
+    });
+}
+
+// Display user information (dialect and region) when username is selected
+function updateUserInfo(username) {
+    if (users[username]) {
+        document.getElementById("dialect-info").textContent = users[username].dialect;
+        document.getElementById("region-info").textContent = users[username].region;
+    }
+}
+
 // Display progress
 function updateProgress(current, total) {
     const progressBar = document.getElementById("progress-bar");
@@ -33,6 +61,9 @@ function updateProgress(current, total) {
 
     progressBar.value = progressPercentage;
     progressText.textContent = `${Math.min(current + 1, total)}/${total}`;
+
+    const nextButton = document.getElementById("next-button");
+    nextButton.textContent = current + 1 === total ? "Finish" : "Next";
 }
 
 // Display a single row of dialogue and translation input
@@ -74,18 +105,20 @@ function displayRow(data, rowIndex) {
 }
 
 // Save translations to localStorage
-function saveTranslations(data) {
+function saveTranslations() {
     const inputs = document.querySelectorAll(".translation-input");
     inputs.forEach(input => {
         annotations[input.id] = input.value;
     });
 
+    const userInfo = users[annotator] || {};
+    annotations.dialect = userInfo.dialect || "N/A";
     localStorage.setItem(`annotations_${annotator}`, JSON.stringify(annotations));
 }
 
 // Load the next row or show the finished message
 function loadNextRow(data) {
-    saveTranslations(data); // Auto-save before moving to next row
+    saveTranslations();
 
     if (currentRow < totalRows - 1) {
         currentRow++;
@@ -112,7 +145,7 @@ document.getElementById("admin-login-submit").addEventListener("click", () => {
     const username = document.getElementById("admin-username").value;
     const password = document.getElementById("admin-password").value;
 
-    if (username === "Ira" && password === "qwerty12345") {
+    if (username === "ira" && password === "1234") {
         alert("Admin login successful!");
         isAdmin = true;
         document.getElementById("admin-login").style.display = "none";
@@ -142,7 +175,7 @@ function loadAdminDashboard() {
             progressRow.innerHTML = `
                 <td>${annotatorName}</td>
                 <td>${data.dialect || "N/A"}</td>
-                <td>${Object.keys(data).length}/${totalRows}</td>
+                <td>${Object.keys(data).length / 8}/2</td>
                 <td><button class="details-button" onclick="viewDetails('${annotatorName}')">View</button></td>
             `;
             progressList.appendChild(progressRow);
@@ -150,45 +183,23 @@ function loadAdminDashboard() {
     }
 }
 
-// View annotation details
-function viewDetails(annotatorName) {
-    const annotationDetails = document.getElementById("annotation-details");
-    const annotationBody = document.getElementById("annotation-body");
-    annotationDetails.style.display = "block";
-
-    const data = JSON.parse(localStorage.getItem(`annotations_${annotatorName}`));
-    annotationBody.innerHTML = "";
-    for (const [key, value] of Object.entries(data)) {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${annotatorName}</td><td>${data.dialect}</td><td>${key}</td><td>${value}</td>`;
-        annotationBody.appendChild(row);
-    }
-}
-
 // Initialize the page
 async function init() {
+    await loadUsers();
+
     const csvData = await loadCSV("data.csv");
     const parsedData = parseCSV(csvData);
     totalRows = parsedData.rows.length;
 
-    // Set predefined usernames directly in the dropdown
-    const usernameSelect = document.getElementById("username");
-    const usernames = ["Aldo", "Budi", "Cika"];
-    usernames.forEach(name => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        usernameSelect.appendChild(option);
-    });
-
     document.getElementById("username").addEventListener("change", () => {
         annotator = document.getElementById("username").value;
+        updateUserInfo(annotator);
         currentRow = 0;
         annotations = JSON.parse(localStorage.getItem(`annotations_${annotator}`)) || {};
         displayRow(parsedData, currentRow);
     });
 
-    document.getElementById("save-button").addEventListener("click", () => saveTranslations(parsedData));
+    document.getElementById("save-button").addEventListener("click", saveTranslations);
     document.getElementById("next-button").addEventListener("click", () => loadNextRow(parsedData));
 }
 
