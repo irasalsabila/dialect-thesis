@@ -16,7 +16,7 @@ body {
     padding: 20px;
     margin: 10px;
     width: 30%;
-    height: 400px;
+    height: 450px;
     overflow-y: auto;
     background-color: white;
     border-radius: 5px;
@@ -25,6 +25,8 @@ body {
 
 h2 {
     margin-top: 0;
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
 label {
@@ -35,22 +37,31 @@ label {
 progress {
     width: 100%;
     height: 20px;
+    margin-bottom: 5px;
+}
+
+#progress-text {
+    font-weight: bold;
+    margin-top: 5px;
+    display: inline-block;
 }
 
 #actions {
     margin-top: 20px;
     display: flex;
     gap: 10px;
+    justify-content: center;
 }
 
 button {
-    margin: 5px;
-    padding: 8px 12px;
+    padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -58,17 +69,66 @@ button:hover {
 }
 
 .translation-input {
+    width: calc(100% - 20px);
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.dialogue-item {
+    margin: 5px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.translation-item {
+    margin: 5px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #e9e9e9;
+}
+
+.translation-item label {
+    margin-bottom: 5px;
+    display: block;
+}
+
+.translation-item input {
     width: 100%;
-    padding: 5px;
+    padding: 8px;
     margin: 5px 0;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 
-.dialogue-item {
+select {
+    padding: 8px;
     margin: 5px 0;
-    padding: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    font-size: 1em;
+    width: 100%;
+}
+
+select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+#info-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+input:focus, button:focus, select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
 }

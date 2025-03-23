@@ -26,28 +26,38 @@
 
         <!-- Right Box: Dropdowns and Progress Bar -->
         <div class="box" id="info-box">
+            <!-- Annotator Selection -->
             <div>
                 <label for="username">Username:</label>
                 <select id="username">
                     <option value="">Select User</option>
                 </select>
             </div>
+            <!-- Dialect Selection -->
             <div>
                 <label for="dialect">Dialect:</label>
                 <select id="dialect">
                     <option value="">Select Dialect</option>
+                    <option value="Dialect A">Dialect A</option>
+                    <option value="Dialect B">Dialect B</option>
+                    <option value="Dialect C">Dialect C</option>
                 </select>
             </div>
+            <!-- Progress Bar and Text -->
             <div id="progress">
                 <label>Progress:</label>
                 <progress id="progress-bar" value="0" max="100"></progress>
+                <span id="progress-text">0/0</span>
             </div>
+            <!-- Action Buttons -->
             <div id="actions">
                 <button id="save-button">Save Translations</button>
                 <button id="load-button">Load Translations</button>
+                <button id="next-button">Next</button>
             </div>
         </div>
     </div>
+    <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
