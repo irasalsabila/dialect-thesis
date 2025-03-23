@@ -85,24 +85,15 @@ function displayDialogue() {
     const row = parsedData.rows[currentRow];
     parsedData.headers.forEach((header, index) => {
         const dialogue = row[index];
-
-        // Original Dialogue Display
-        const dialogueElement = document.createElement("p");
-        dialogueElement.innerHTML = `<strong>${header}:</strong> ${dialogue}`;
-        dialogueBox.appendChild(dialogueElement);
-
-        // Translation Box with Speaker Name
-        const translateLabel = document.createElement("label");
-        translateLabel.textContent = `${header}:`;
-        translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
         translateInput.placeholder = "Translate to your dialect";
         translateInput.value = annotations[currentRow]?.[index] || "";
+        translateInput.required = true; // Make input required
         translateInput.oninput = () => saveTranslation(index, translateInput.value);
 
-        // Add the label and input to the translation box
-        translateBox.appendChild(translateLabel);
+        dialogueBox.innerHTML += `<p><strong>${header}:</strong> ${dialogue}</p>`;
+        translateBox.innerHTML += `<p><strong>${header}:</strong></p>`;
         translateBox.appendChild(translateInput);
     });
 
@@ -116,6 +107,18 @@ function saveTranslation(index, value) {
     }
     annotations[currentRow][index] = value;
     saveAnnotations();
+}
+
+// Validate all translations are filled
+function validateTranslations() {
+    const inputs = document.querySelectorAll("#translation-content input");
+    for (let input of inputs) {
+        if (input.value.trim() === "") {
+            alert("Please fill all translation fields before saving or moving to the next row.");
+            return false;
+        }
+    }
+    return true;
 }
 
 // Save annotations to localStorage
@@ -143,12 +146,14 @@ function updateProgress() {
 
 // Move to next row
 function nextRow() {
-    currentRow++;
-    if (currentRow >= totalRows) {
-        currentRow = totalRows;
-        alert("All annotations completed!");
+    if (validateTranslations()) {
+        currentRow++;
+        if (currentRow >= totalRows) {
+            currentRow = totalRows;
+            alert("All annotations completed!");
+        }
+        displayDialogue();
     }
-    displayDialogue();
 }
 
 // Reset all annotations
@@ -277,9 +282,18 @@ function closeAnnotationDetails() {
     annotationDetails.style.display = "none";
 }
 
+// Save current progress without moving to the next row
+function saveCurrentProgress() {
+    if (validateTranslations()) {
+        saveAnnotations();
+        alert("Progress saved!");
+    }
+}
+
 // Event listeners
 document.getElementById("username").addEventListener("change", onUserChange);
 document.getElementById("next").addEventListener("click", nextRow);
+document.getElementById("save").addEventListener("click", saveCurrentProgress);
 document.getElementById("reset").addEventListener("click", resetAnnotations);
 document.getElementById("admin-login").addEventListener("click", adminLogin);
 
