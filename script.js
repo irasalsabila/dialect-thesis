@@ -81,11 +81,12 @@ function saveTranslations(data) {
     });
 
     localStorage.setItem(`annotations_${annotator}`, JSON.stringify(annotations));
-    alert("Translations saved successfully!");
 }
 
 // Load the next row or show the finished message
 function loadNextRow(data) {
+    saveTranslations(data); // Auto-save before moving to next row
+
     if (currentRow < totalRows - 1) {
         currentRow++;
         displayRow(data, currentRow);
@@ -169,6 +170,15 @@ async function init() {
     const csvData = await loadCSV("data.csv");
     const parsedData = parseCSV(csvData);
     totalRows = parsedData.rows.length;
+
+    // Set predefined usernames
+    const usernameSelect = document.getElementById("username");
+    ["Aldo", "Budi", "Cika"].forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        usernameSelect.appendChild(option);
+    });
 
     document.getElementById("username").addEventListener("change", () => {
         annotator = document.getElementById("username").value;
