@@ -232,13 +232,16 @@ function viewAnnotations(annotator) {
     annotationHeader.appendChild(headerRow);
 
     // Create table rows and CSV content
-    Object.keys(data).forEach((rowIndex, index) => {
+    Object.keys(data).forEach((rowIndex) => {
         const row = data[rowIndex];
         const tr = document.createElement("tr");
 
-        // Add index, annotation, and dialect cells
+        // Prepare row data including index, annotator, and dialect
+        const rowData = [rowIndex, annotator, dialect];
+        
+        // Add index, annotator, and dialect cells
         const indexCell = document.createElement("td");
-        indexCell.textContent = index + 1;
+        indexCell.textContent = rowIndex;
         tr.appendChild(indexCell);
 
         const annotationCell = document.createElement("td");
@@ -250,17 +253,16 @@ function viewAnnotations(annotator) {
         tr.appendChild(dialectCell);
 
         // Add data from CSV columns
-        row.forEach((value) => {
+        parsedData.headers.forEach((header, index) => {
+            const value = row[index] || "-";
             const td = document.createElement("td");
-            td.textContent = value || "-";
+            td.textContent = value;
             tr.appendChild(td);
+            rowData.push(value);
         });
 
         annotationBody.appendChild(tr);
-        
-        // Create a CSV row
-        const csvRow = [index + 1, annotator, dialect, ...row];
-        csvContent += csvRow.join(",") + "\n";
+        csvContent += rowData.join(",") + "\n";
     });
 
     // Add download button for CSV
