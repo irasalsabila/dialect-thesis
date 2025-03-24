@@ -319,7 +319,7 @@ function closeAdminDashboard() {
 document.getElementById("username").addEventListener("change", onUserChange);
 document.getElementById("next").addEventListener("click", nextRow);
 // document.getElementById("save").addEventListener("click", saveCurrentProgress);
-document.getElementById("reset").addEventListener("click", resetAnnotations);
+// document.getElementById("reset").addEventListener("click", resetAnnotations);
 document.getElementById("admin-login").addEventListener("click", adminLogin);
 
 // Initialize on page load
