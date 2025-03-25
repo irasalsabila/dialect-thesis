@@ -83,17 +83,24 @@ function displayDialogue() {
     }
 
     const row = parsedData.rows[currentRow];
+    const speakerAName = row[0]; // First column: speakerA_name
+    const speakerBName = row[1]; // Second column: speakerB_name
+
     parsedData.headers.forEach((header, index) => {
+        // Skip the first two columns (speaker names)
+        if (index === 0 || index === 1) return;
+
         const dialogue = row[index];
+        const speakerName = index % 2 === 0 ? speakerAName : speakerBName;
 
         // Original Dialogue Display
         const dialogueElement = document.createElement("p");
-        dialogueElement.innerHTML = `<strong>${header}:</strong> ${dialogue}`;
+        dialogueElement.innerHTML = `<strong>${speakerName}:</strong> ${dialogue}`;
         dialogueBox.appendChild(dialogueElement);
 
         // Translation Box with Speaker Name
         const translateLabel = document.createElement("label");
-        translateLabel.textContent = `${header}:`;
+        translateLabel.textContent = `${speakerName}:`;
         translateLabel.style.fontWeight = "bold";
         const translateInput = document.createElement("input");
         translateInput.type = "text";
