@@ -123,7 +123,7 @@ function saveTranslation(index, value) {
     if (!annotations[currentRow]) {
         annotations[currentRow] = [];
     }
-    annotations[currentRow][index] = value;
+    annotations[currentRow][index] = value;  // Ensure each field is saved correctly
     saveAnnotations();
 }
 
@@ -138,8 +138,9 @@ function loadAnnotations() {
     annotations = storedData ? JSON.parse(storedData) : {};
     // Prevent skipping incomplete rows on reload
     for (let i = 0; i < totalRows; i++) {
-        if (!annotations[i] || annotations[i].some(val => !val)) {
-            currentRow = i;
+        if (annotations[i] && annotations[i].every(value => value !== "")) {
+            currentRow++;
+        } else {
             break;
         }
     }
