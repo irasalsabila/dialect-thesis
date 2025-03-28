@@ -136,23 +136,35 @@ function saveAnnotations() {
 function loadAnnotations() {
     const storedData = localStorage.getItem(`annotations_${currentAnnotator}`);
     annotations = storedData ? JSON.parse(storedData) : {};
-    // Prevent skipping incomplete rows on reload
+
+    // Reset current row and calculate completed rows
+    currentRow = 0;
+    let completedRows = 0;
+
     for (let i = 0; i < totalRows; i++) {
-        if (annotations[i] && annotations[i].every(value => value !== "")) {
-            currentRow++;
+        const row = annotations[i];
+        // Check if the row exists and is fully completed
+        if (row && Object.values(row).filter(value => value && value !== '-').length >= parsedData.headers.length - 2) {
+            completedRows++;
         } else {
-            break;
+            break; // Stop at the first incomplete row
         }
     }
+
+    // Set the current row to the first incomplete row
+    currentRow = completedRows;
+
+    // Update progress and display the dialogue for the current row
     updateProgress();
     displayDialogue();
 }
 
-// Update progress bar
 function updateProgress() {
     const progressBar = document.getElementById("progress-bar-fill");
     const progressText = document.getElementById("progress");
-    const progress = Math.min(currentRow / totalRows * 100, 100);
+
+    // Use the currentRow directly to calculate progress
+    const progress = Math.min((currentRow / totalRows) * 100, 100);
     progressBar.style.width = progress + "%";
     progressText.textContent = `${currentRow}/${totalRows}`;
 }
@@ -226,8 +238,8 @@ function viewAnnotations(annotator) {
     const user = usersData.find(u => u[0] === annotator);
     const dialect = user ? user[1] : "Unknown";
 
-    // Generate headers dynamically with index
-    const headers = ["index", "annotator", "dialect", ...parsedData.headers];
+    // Generate headers dynamically with index, annotator, dialect, and speaker names
+    const headers = ["index", "annotator", "dialect", "speakerA_name", "speakerB_name", ...parsedData.headers.slice(2)];
     let csvContent = headers.join(",") + "\n";
 
     // Create header row
@@ -244,25 +256,21 @@ function viewAnnotations(annotator) {
         const row = data[rowIndex];
         const tr = document.createElement("tr");
 
-        // Prepare row data including index, annotator, and dialect
-        const rowData = [rowIndex, annotator, dialect];
-        
-        // Add index, annotator, and dialect cells
-        const indexCell = document.createElement("td");
-        indexCell.textContent = rowIndex;
-        tr.appendChild(indexCell);
+        // Prepare row data including index, annotator, dialect, speaker names
+        const speakerAName = parsedData.rows[rowIndex][0]; // First column: speakerA_name
+        const speakerBName = parsedData.rows[rowIndex][1]; // Second column: speakerB_name
+        const rowData = [rowIndex, annotator, dialect, speakerAName, speakerBName];
 
-        const annotationCell = document.createElement("td");
-        annotationCell.textContent = annotator;
-        tr.appendChild(annotationCell);
+        // Add index, annotator, dialect, and speaker names cells
+        [rowIndex, annotator, dialect, speakerAName, speakerBName].forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+        });
 
-        const dialectCell = document.createElement("td");
-        dialectCell.textContent = dialect;
-        tr.appendChild(dialectCell);
-
-        // Add data from CSV columns
-        parsedData.headers.forEach((header, index) => {
-            const value = row[index] || "-";
+        // Add conversation turns directly from the data without slicing
+        parsedData.headers.slice(2).forEach((header, index) => {
+            const value = row[index+2] || "-";
             const td = document.createElement("td");
             td.textContent = value;
             tr.appendChild(td);

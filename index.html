@@ -56,7 +56,7 @@
             <div class="button-group">
                 <!-- <button id="save" class="btn">Save</button> -->
                 <button id="next" class="btn">Next</button>
-                <button id="reset" class="btn">Reset</button>
+                <!-- <button id="reset" class="btn">Reset</button> -->
                 <button id="admin-login" class="btn">Admin Login</button>
             </div>
         </div>
@@ -93,8 +93,10 @@
                     <!-- Annotation rows will be dynamically added here -->
                 </tbody>
             </table>
-            <button onclick="closeAnnotationDetails()" class="btn">Close</button>
-            <button id="download-annotations" class="btn">Download CSV</button>
+            <div class="button-group">
+                <button onclick="closeAnnotationDetails()" class="btn btn-danger">Close</button>
+                <button id="download-annotations" class="btn btn-success">Download CSV</button>
+            </div>
         </div>
 
         <!-- Admin Access -->
