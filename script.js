@@ -7,6 +7,9 @@ let parsedData = [];
 let usersData = [];
 let currentDialect = "";
 let currentRegion = "";
+let currentRole = ""; // Add this to global vars
+let assignedStart = 0;
+let assignedEnd = 0;
 
 // Load CSV data (async)
 async function loadCSV(file) {
@@ -21,29 +24,39 @@ async function loadCSV(file) {
     }
 }
 
-// Parse CSV data
 function parseCSV(data) {
-    const rows = data.trim().split('\n');
-    const headers = rows[0].split(',');
-    const parsedRows = rows.slice(1).map(row => row.split(','));
-    return { headers, rows: parsedRows };
+    const parsed = Papa.parse(data.trim(), {
+        header: true,
+        skipEmptyLines: true
+    });
+
+    const headers = parsed.meta.fields;
+    const rows = parsed.data.map(row => headers.map(h => row[h] || "")); // Ensure order
+
+    return { headers, rows };
 }
+
+
 
 // Initialize the interface
 async function init() {
     const csvData = await loadCSV('data.csv');
     const userCsvData = await loadCSV('users.csv');
+    console.log("Raw user CSV:", userCsvData); // Check how many lines
     parsedData = parseCSV(csvData);
     usersData = parseCSV(userCsvData).rows;
+    // console.log("Usernames found:", usersData.map(u => u[0]));
     totalRows = parsedData.rows.length;
     populateUserDropdown();
-    updateProgress();
+    // updateProgress();
 }
 
-// Populate user dropdown from users.csv
 function populateUserDropdown() {
     const usernameSelect = document.getElementById("username");
     usernameSelect.innerHTML = '<option value="">Select User</option>';
+    
+    console.log("Parsed Users:", usersData); // 🔍 log it for debug
+    
     usersData.forEach(user => {
         const option = document.createElement("option");
         option.value = user[0];
@@ -52,7 +65,7 @@ function populateUserDropdown() {
     });
 }
 
-// Handle user change
+
 function onUserChange() {
     const usernameSelect = document.getElementById("username");
     currentAnnotator = usernameSelect.value;
@@ -61,11 +74,14 @@ function onUserChange() {
     if (user) {
         currentDialect = user[1];
         currentRegion = user[2];
+        currentRole = user[3];
+
         document.getElementById("dialect").textContent = currentDialect;
         document.getElementById("region").textContent = currentRegion;
+
+        // Load their annotations & display progress properly
+        loadAnnotations();
     }
-    loadAnnotations();
-    displayDialogue();
 }
 
 // Display dialogue and input fields
@@ -132,53 +148,63 @@ function saveAnnotations() {
     localStorage.setItem(`annotations_${currentAnnotator}`, JSON.stringify(annotations));
 }
 
-// Load annotations from localStorage
 function loadAnnotations() {
     const storedData = localStorage.getItem(`annotations_${currentAnnotator}`);
     annotations = storedData ? JSON.parse(storedData) : {};
 
-    // Reset current row and calculate completed rows
-    currentRow = 0;
-    let completedRows = 0;
+    const midpoint = Math.floor(totalRows / 2);
+    [assignedStart, assignedEnd] = currentRole === "first"
+        ? [0, midpoint]
+        : [midpoint, totalRows];
 
-    for (let i = 0; i < totalRows; i++) {
+    currentRow = assignedStart;
+    for (let i = assignedStart; i < assignedEnd; i++) {
         const row = annotations[i];
-        // Check if the row exists and is fully completed
         if (row && Object.values(row).filter(value => value && value !== '-').length >= parsedData.headers.length - 2) {
-            completedRows++;
+            currentRow = i + 1;
         } else {
-            break; // Stop at the first incomplete row
+            break;
         }
     }
 
-    // Set the current row to the first incomplete row
-    currentRow = completedRows;
+    if (currentRow >= assignedEnd) currentRow = assignedEnd;
 
-    // Update progress and display the dialogue for the current row
     updateProgress();
     displayDialogue();
 }
+
 
 function updateProgress() {
     const progressBar = document.getElementById("progress-bar-fill");
     const progressText = document.getElementById("progress");
 
-    // Use the currentRow directly to calculate progress
-    const progress = Math.min((currentRow / totalRows) * 100, 100);
+    const range = assignedEnd - assignedStart;
+    const completed = currentRow - assignedStart;
+    const progress = Math.min((completed / range) * 100, 100);
+
     progressBar.style.width = progress + "%";
-    progressText.textContent = `${currentRow}/${totalRows}`;
+    progressText.textContent = `${completed}/${range}`;
 }
 
-// Move to next row
 function nextRow() {
     if (!validateTranslations()) return;
+
     currentRow++;
-    if (currentRow >= totalRows) {
-        currentRow = totalRows;
+
+    const midpoint = Math.floor(totalRows / 2);
+    const [startRow, endRow] = currentRole === "first"
+        ? [0, midpoint]
+        : [midpoint, totalRows];
+
+    if (currentRow >= endRow) {
+        currentRow = endRow;
         alert("All annotations completed!");
     }
+
+    updateProgress(startRow, endRow);
     displayDialogue();
 }
+
 
 // Reset all annotations
 function resetAnnotations() {
@@ -331,12 +357,27 @@ function closeAdminDashboard() {
     dashboard.style.display = "none";
 }
 
-// Event listeners
-document.getElementById("username").addEventListener("change", onUserChange);
-document.getElementById("next").addEventListener("click", nextRow);
-// document.getElementById("save").addEventListener("click", saveCurrentProgress);
-// document.getElementById("reset").addEventListener("click", resetAnnotations);
-document.getElementById("admin-login").addEventListener("click", adminLogin);
+function previousRow() {
+    const midpoint = Math.floor(totalRows / 2);
+    const [startRow, endRow] = currentRole === "first"
+        ? [0, midpoint]
+        : [midpoint, totalRows];
+
+    if (currentRow > startRow) {
+        currentRow--;
+        updateProgress();
+        displayDialogue();
+    } else {
+        alert("You are already at the first row of your assignment.");
+    }
+}
 
 // Initialize on page load
-window.onload = init;
+window.addEventListener("DOMContentLoaded", () => {
+    init(); // Load data
+    // document.getElementById("reset").addEventListener("click", resetAnnotations);  // 🔥 Attach AFTER DOM is ready
+    document.getElementById("next").addEventListener("click", nextRow);
+    document.getElementById("back").addEventListener("click", previousRow);
+    document.getElementById("username").addEventListener("change", onUserChange);
+    document.getElementById("admin-login").addEventListener("click", adminLogin);
+});

@@ -1,4 +1,7 @@
-username,dialect,region
-Aldo,Mataraman/Solo-Jogja,Surakarta
-Budi,Ngapak,Banyumas
-Cika,Arekan,Surabaya
+username,dialect,region,role
+Aldo,Mataraman,Surakarta,first
+Budi,Ngapak,Banyumas,first
+Cika,Arekan,Malang,first
+Aldi,Mataraman,Surakarta,second
+Bima,Ngapak,Tegal,second
+Chen,Arekan,Surabaya,second
