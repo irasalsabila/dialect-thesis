@@ -11,6 +11,8 @@ let currentRole = ""; // Add this to global vars
 let assignedStart = 0;
 let assignedEnd = 0;
 
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkCnSmDWwHhQhDTir29OCg5mvqanbcJPUfg8ZUjiToqbyAfKKILDvlsH4u8LiSEDzxlw/exec";
+
 // Load CSV data (async)
 async function loadCSV(file) {
     try {
@@ -134,20 +136,67 @@ function displayDialogue() {
 }
 
 
-// Save translation for the current row
+// // Save translation for the current row
+// function saveTranslation(index, value) {
+//     if (!annotations[currentRow]) {
+//         annotations[currentRow] = [];
+//     }
+//     annotations[currentRow][index] = value;  // Ensure each field is saved correctly
+//     saveAnnotations();
+// }
+
 function saveTranslation(index, value) {
     if (!annotations[currentRow]) {
         annotations[currentRow] = [];
     }
-    annotations[currentRow][index] = value;  // Ensure each field is saved correctly
-    saveAnnotations();
+    annotations[currentRow][index] = value;
+
+    // Gather full annotation row
+    const fullAnnotation = annotations[currentRow];
+    const dialogueHeaders = parsedData.headers.slice(2);
+    const annotatedText = dialogueHeaders.map((_, i) => fullAnnotation[i + 2] || "-");
+
+    // Prepare full data to send
+    const rowData = {
+        name: currentAnnotator,
+        role: currentRole,
+        annotation: JSON.stringify({
+            index: currentRow,
+            dialect: currentDialect,
+            region: currentRegion,
+            speakerA_name: parsedData.rows[currentRow][0],
+            speakerB_name: parsedData.rows[currentRow][1],
+            turns: annotatedText
+        })
+    };
+
+    saveAnnotationToGoogleSheet(rowData.name, rowData.role, rowData.annotation);
 }
 
-// Save annotations to localStorage
-function saveAnnotations() {
-    localStorage.setItem(`annotations_${currentAnnotator}`, JSON.stringify(annotations));
-}
 
+// // Save annotations to localStorage
+// function saveAnnotations() {
+//     localStorage.setItem(`annotations_${currentAnnotator}`, JSON.stringify(annotations));
+// }
+
+// Example function to send data to Google Sheets
+function saveAnnotationToGoogleSheet(name, role, annotation) {
+    fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ name, role, annotation }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log("✅ Data saved to Google Sheet:", result);
+    })
+    .catch(error => {
+      console.error("❌ Error saving to Google Sheet:", error);
+    });
+  }
+  
 function loadAnnotations() {
     const storedData = localStorage.getItem(`annotations_${currentAnnotator}`);
     annotations = storedData ? JSON.parse(storedData) : {};
@@ -335,7 +384,8 @@ function closeAnnotationDetails() {
 // Save current progress without moving to the next row
 function saveCurrentProgress() {
     if (!validateTranslations()) return;
-    saveAnnotations();
+    // saveAnnotations();
+    saveAnnotationToGoogleSheet(rowData.name, rowData.role, rowData.annotation);
     alert("Progress saved!");
 }
 
